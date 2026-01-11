@@ -225,7 +225,10 @@ function autoSelectJobFromURL() {
 // File upload handling
 function setupFileUpload() {
     const fileInput = document.getElementById('resume-upload');
+    if (!fileInput) return; // Exit if resume upload doesn't exist on this page (e.g., Google Form page)
+    
     const fileName = fileInput.parentElement.querySelector('.file-name');
+    if (!fileName) return; // Exit if file name element doesn't exist
     
     fileInput.addEventListener('change', function(e) {
         if (e.target.files.length > 0) {

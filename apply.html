@@ -41,21 +41,23 @@
             <!-- Embedded Google Form -->
             <div class="google-form-container">
                 <!-- 
-                    GOOGLE FORM EMBED CONFIGURATION:
-                    ==================================
+                    IMPORTANT: GOOGLE FORM EMBED CONFIGURATION
+                    ============================================
+                    The form embed URL below may need to be updated.
+                    
                     To get the correct embed URL:
                     1. Open your Google Form: https://forms.gle/xPnqiE2Cytt9VyuAA
                     2. Click the "Send" button (top right corner)
                     3. Click the "< >" (embed) icon tab
-                    4. Adjust width/height if needed (optional)
-                    5. Copy the iframe code provided
-                    6. Extract the src URL from the iframe code
-                    7. Replace the src URL below with your actual form embed URL
+                    4. Copy the iframe code provided
+                    5. Extract the src URL from the iframe code
+                    6. Replace the src URL below with your actual form embed URL
                     
                     Example format:
                     https://docs.google.com/forms/d/e/[YOUR_FORM_ID]/viewform?embedded=true
                 -->
                 <iframe 
+                    id="google-form-iframe"
                     src="https://docs.google.com/forms/d/e/1FAIpQLSdXxPnqiE2Cytt9VyuAA/viewform?embedded=true" 
                     width="100%" 
                     height="1200" 
@@ -64,7 +66,8 @@
                     marginwidth="0"
                     title="Application Form - Workforce Recruitment Solutions"
                     style="border: none; min-height: 1200px;"
-                    loading="lazy">
+                    loading="lazy"
+                    allow="fullscreen">
                     <p>Your browser does not support iframes. 
                         <a href="https://forms.gle/xPnqiE2Cytt9VyuAA" target="_blank" rel="noopener noreferrer">
                             Click here to open the application form in a new window
@@ -73,12 +76,18 @@
                 </iframe>
             </div>
             
-            <!-- Alternative link if iframe doesn't work -->
-            <div class="form-fallback" style="text-align: center; margin-top: 2rem;">
-                <p style="color: var(--text-light); margin-bottom: 1rem;">Having trouble viewing the form?</p>
-                <a href="https://forms.gle/xPnqiE2Cytt9VyuAA" target="_blank" rel="noopener noreferrer" class="cta-button" style="display: inline-block;">
-                    Open Form in New Window
+            <!-- Alternative link - shown if form doesn't load -->
+            <div class="form-fallback" id="form-fallback" style="text-align: center; margin-top: 2rem; display: none;">
+                <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                    <p style="color: #856404; margin: 0 0 0.5rem 0; font-weight: 600; font-size: 1.1rem;">⚠️ Form Embed Error Detected</p>
+                    <p style="color: #856404; margin: 0; font-size: 0.95rem;">The embedded form could not be loaded. Please click the button below to open the form directly in Google Forms.</p>
+                </div>
+                <a href="https://forms.gle/xPnqiE2Cytt9VyuAA" target="_blank" rel="noopener noreferrer" class="cta-button" style="display: inline-block; margin-bottom: 1rem;">
+                    Open Application Form in New Window
                 </a>
+                <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 1rem;">
+                    <strong>Note:</strong> If you see this message, the Google Form embed URL in apply.html needs to be updated with the correct form ID.
+                </p>
             </div>
         </div>
     </section>
@@ -108,31 +117,65 @@
 
     <script src="script.js"></script>
     <script>
-        // Try to load the Google Form
-        // If the iframe fails to load, show the fallback link
-        window.addEventListener('load', function() {
-            const iframe = document.querySelector('.google-form-container iframe');
-            if (iframe) {
-                iframe.addEventListener('error', function() {
-                    // If iframe fails, ensure fallback is visible
-                    const fallback = document.querySelector('.form-fallback');
-                    if (fallback) {
-                        fallback.style.display = 'block';
-                    }
-                });
-                
-                // Check if iframe loaded successfully after a delay
-                setTimeout(function() {
-                    try {
-                        // Try to access iframe content (will fail if cross-origin, but that's expected)
-                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    } catch (e) {
-                        // Cross-origin error is expected and means the iframe is working
-                        // If we get here, the iframe is likely loading correctly
-                    }
-                }, 2000);
+        // Detect if Google Form iframe fails to load and show fallback
+        (function() {
+            const iframe = document.getElementById('google-form-iframe');
+            const fallback = document.getElementById('form-fallback');
+            const container = document.querySelector('.google-form-container');
+            
+            if (!iframe || !fallback) return;
+            
+            // Function to show fallback
+            function showFallback() {
+                if (container) container.style.display = 'none';
+                fallback.style.display = 'block';
             }
-        });
+            
+            // Check after page loads
+            window.addEventListener('load', function() {
+                // Wait a bit for iframe to load, then check
+                setTimeout(function() {
+                    // Try to detect if iframe loaded error content
+                    try {
+                        // Cross-origin check - if we can access document, check for errors
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        if (iframeDoc) {
+                            const body = iframeDoc.body;
+                            if (body && (
+                                body.textContent.includes('does not exist') || 
+                                body.textContent.includes('404') ||
+                                body.textContent.includes('Sorry, the file') ||
+                                body.textContent.includes('Google Drive')
+                            )) {
+                                showFallback();
+                                return;
+                            }
+                        }
+                    } catch (e) {
+                        // Cross-origin - normal for Google Forms
+                        // Check if iframe seems to have loaded properly
+                        if (iframe.offsetHeight < 100) {
+                            // Iframe is very small, might be an error
+                            showFallback();
+                        }
+                    }
+                }, 3000);
+            });
+            
+            // Listen for iframe errors (may not fire due to CORS, but worth trying)
+            iframe.addEventListener('error', function() {
+                showFallback();
+            });
+            
+            // Also show fallback by default after 5 seconds if form seems broken
+            // This ensures users always have access to the form
+            setTimeout(function() {
+                // If iframe height is still very small after 5 seconds, show fallback
+                if (iframe.offsetHeight < 200) {
+                    showFallback();
+                }
+            }, 5000);
+        })();
     </script>
 </body>
 </html>
