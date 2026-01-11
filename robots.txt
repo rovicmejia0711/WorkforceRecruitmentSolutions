@@ -1,0 +1,15 @@
+# Robots.txt
+# Workforce Recruitment Solutions - SEO Configuration
+
+User-agent: *
+Allow: /
+
+# Disallow admin panel from search engines
+Disallow: /admin.html
+
+# Allow all other pages
+Allow: /WorkforceRecruitmentSolution.html
+Allow: /thank-you.html
+
+# Sitemap location (update with your actual domain)
+# Sitemap: https://your-site.netlify.app/sitemap.xml

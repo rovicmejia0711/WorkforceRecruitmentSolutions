@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Workforce Recruitment Solutions</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <h1>Admin Login</h1>
+            <p>Workforce Recruitment Solutions</p>
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="admin-username">Username</label>
+                    <input type="text" id="admin-username" name="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="admin-password">Password</label>
+                    <input type="password" id="admin-password" name="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+                <div id="login-error" class="form-message error" style="display: none;"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="admin-dashboard" style="display: none;">
+        <!-- Admin Navigation -->
+        <nav class="admin-navbar">
+            <div class="container">
+                <div class="admin-nav-brand">
+                    <h1>Admin Dashboard</h1>
+                    <span>Workforce Recruitment Solutions</span>
+                </div>
+                <div class="admin-nav-actions">
+                    <a href="WorkforceRecruitmentSolution.html" class="btn-secondary">View Site</a>
+                    <button id="logout-btn" class="btn-secondary">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="admin-container">
+            <div class="admin-sidebar">
+                <ul class="admin-menu">
+                    <li><a href="#jobs-manager" class="admin-menu-item active" data-section="jobs-manager">Job Manager</a></li>
+                    <li><a href="#applications" class="admin-menu-item" data-section="applications">Applications</a></li>
+                    <li><a href="#settings" class="admin-menu-item" data-section="settings">Settings</a></li>
+                </ul>
+            </div>
+
+            <div class="admin-content">
+                <!-- Jobs Manager Section -->
+                <section id="jobs-manager" class="admin-section active">
+                    <div class="section-header">
+                        <h2>Job Manager</h2>
+                        <button id="add-job-btn" class="btn-primary">+ Add New Job</button>
+                    </div>
+
+                    <div class="jobs-list">
+                        <div class="jobs-filter">
+                            <button class="filter-btn active" data-filter="all">All Jobs</button>
+                            <button class="filter-btn" data-filter="active">Active</button>
+                            <button class="filter-btn" data-filter="archived">Archived</button>
+                        </div>
+                        <div id="jobs-list-container" class="jobs-list-container">
+                            <!-- Jobs will be dynamically rendered here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Applications Section -->
+                <section id="applications" class="admin-section">
+                    <div class="section-header">
+                        <h2>Applications</h2>
+                        <button id="export-applications-btn" class="btn-secondary">Export to CSV</button>
+                    </div>
+                    <div id="applications-container" class="applications-container">
+                        <!-- Applications will be dynamically rendered here -->
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings" class="admin-section">
+                    <div class="section-header">
+                        <h2>Settings</h2>
+                    </div>
+                    <div class="settings-content">
+                        <div class="setting-card">
+                            <h3>Email Configuration</h3>
+                            <p>Configure email notifications and auto-replies</p>
+                            <div class="form-group">
+                                <label for="hr-email">HR Email (Primary Recipient)</label>
+                                <input type="email" id="hr-email" placeholder="hr@workforcerecruitment.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="hr-emails">Additional HR Emails (comma-separated)</label>
+                                <input type="text" id="hr-emails" placeholder="hr1@company.com, hr2@company.com">
+                            </div>
+                            <button class="btn-primary" onclick="saveEmailSettings()">Save Email Settings</button>
+                        </div>
+
+                        <div class="setting-card">
+                            <h3>Google Sheets Integration</h3>
+                            <p>Enable automatic logging of applications to Google Sheets</p>
+                            <div class="form-group">
+                                <label for="sheets-url">Google Sheets URL</label>
+                                <input type="url" id="sheets-url" placeholder="https://docs.google.com/spreadsheets/...">
+                            </div>
+                            <button class="btn-primary" onclick="saveSheetsSettings()">Save Sheets Settings</button>
+                        </div>
+
+                        <div class="setting-card">
+                            <h3>Admin Credentials</h3>
+                            <p>Change admin username and password</p>
+                            <div class="form-group">
+                                <label for="new-username">New Username</label>
+                                <input type="text" id="new-username" placeholder="admin">
+                            </div>
+                            <div class="form-group">
+                                <label for="new-password">New Password</label>
+                                <input type="password" id="new-password" placeholder="••••••••">
+                            </div>
+                            <button class="btn-primary" onclick="changeAdminCredentials()">Change Credentials</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Job Modal -->
+    <div id="job-modal-admin" class="modal">
+        <div class="modal-content large">
+            <span class="modal-close" onclick="closeJobModal()">&times;</span>
+            <h2 id="modal-title">Add New Job</h2>
+            <form id="job-form" class="job-form">
+                <input type="hidden" id="job-id" name="jobId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="job-title">Job Title *</label>
+                        <input type="text" id="job-title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="job-location">Location *</label>
+                        <input type="text" id="job-location" name="location" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="job-experience">Experience Required *</label>
+                        <input type="text" id="job-experience" name="experience" placeholder="e.g., 8+ years" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="job-status">Status *</label>
+                        <select id="job-status" name="status" required>
+                            <option value="active">Active</option>
+                            <option value="archived">Archived</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="job-description">Job Description *</label>
+                    <textarea id="job-description" name="description" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="job-responsibilities">Key Responsibilities (one per line) *</label>
+                    <textarea id="job-responsibilities" name="responsibilities" rows="8" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="job-required-skills">Required Skills (one per line) *</label>
+                    <textarea id="job-required-skills" name="requiredSkills" rows="8" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="job-additional-info">Additional Information</label>
+                    <textarea id="job-additional-info" name="additionalInfo" rows="3"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeJobModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Job</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="admin-script.js"></script>
+</body>
+</html>

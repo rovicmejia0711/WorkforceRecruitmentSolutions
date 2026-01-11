@@ -1,0 +1,86 @@
+# Netlify Configuration File
+# Workforce Recruitment Solutions - Deployment Settings
+
+[build]
+  # No build command needed for static site
+  publish = "."
+  command = ""
+
+# Redirect rules
+# Redirect root to main page
+[[redirects]]
+  from = "/"
+  to = "/WorkforceRecruitmentSolution.html"
+  status = 200
+  force = false
+
+# Redirect old index.html to new filename (backwards compatibility)
+[[redirects]]
+  from = "/index.html"
+  to = "/WorkforceRecruitmentSolution.html"
+  status = 301
+  force = false
+
+# Redirect all other routes to main page for SPA behavior
+[[redirects]]
+  from = "/*"
+  to = "/WorkforceRecruitmentSolution.html"
+  status = 200
+  force = false
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, must-revalidate"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpeg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Environment variables (add your own)
+# [build.environment]
+#   NODE_VERSION = "18"
+
+# Form handling
+[forms]
+  action = "/thank-you.html"
+
+# Site information
+[context.production.environment]
+  SITE_URL = "https://your-site.netlify.app"

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You - Workforce Recruitment Solutions</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .thank-you-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-red) 0%, var(--dark-red) 100%);
+            padding: 2rem;
+        }
+        
+        .thank-you-card {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .thank-you-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 2rem;
+            background-color: var(--cream);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .thank-you-icon svg {
+            width: 60px;
+            height: 60px;
+            fill: var(--primary-red);
+        }
+        
+        .thank-you-card h1 {
+            color: var(--primary-red);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .thank-you-card h2 {
+            color: var(--text-dark);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .thank-you-card p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+        
+        .thank-you-info {
+            background-color: var(--gray-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .thank-you-info p {
+            margin: 0.5rem 0;
+            font-size: 1rem;
+        }
+        
+        .thank-you-info strong {
+            color: var(--primary-red);
+        }
+        
+        .thank-you-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .thank-you-card {
+                padding: 2rem 1.5rem;
+            }
+            
+            .thank-you-card h1 {
+                font-size: 2rem;
+            }
+            
+            .thank-you-card h2 {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="thank-you-container">
+        <div class="thank-you-card">
+            <div class="thank-you-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+            </div>
+            <h1>Thank You!</h1>
+            <h2 id="applicant-name">Your application has been received</h2>
+            <p>We appreciate your interest in joining our team. Our HR team will review your application and get back to you soon.</p>
+            
+            <div class="thank-you-info" id="application-details" style="display: none;">
+                <p><strong>Position Applied:</strong> <span id="position-name"></span></p>
+                <p><strong>Application Date:</strong> <span id="application-date"></span></p>
+            </div>
+            
+            <div class="thank-you-actions">
+                <a href="WorkforceRecruitmentSolution.html" class="btn-primary">Back to Home</a>
+                <a href="WorkforceRecruitmentSolution.html#jobs" class="btn-secondary">View More Positions</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer" style="margin-top: 0;">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <p>&copy; 2026 Workforce Recruitment Solutions. All Rights Reserved.</p>
+                    <p>EST. 2023 | Building careers, one placement at a time.</p>
+                </div>
+                <div class="footer-contact">
+                    <p class="contact-title">Contact Us</p>
+                    <p class="contact-item">
+                        <span class="contact-icon">📧</span>
+                        <a href="mailto:rovicmejia.hrd@gmail.com">rovicmejia.hrd@gmail.com</a>
+                    </p>
+                    <p class="contact-item">
+                        <span class="contact-icon">📞</span>
+                        <a href="tel:+639755636276">+63 975 563 6276</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const name = urlParams.get('name');
+        const position = urlParams.get('position');
+        
+        if (name) {
+            document.getElementById('applicant-name').textContent = `Thank you, ${decodeURIComponent(name)}!`;
+            document.getElementById('applicant-name').style.display = 'block';
+        }
+        
+        if (position) {
+            document.getElementById('position-name').textContent = decodeURIComponent(position);
+            document.getElementById('application-details').style.display = 'block';
+        }
+        
+        // Set application date
+        document.getElementById('application-date').textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    </script>
+</body>
+</html>
