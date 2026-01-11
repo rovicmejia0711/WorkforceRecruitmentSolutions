@@ -603,15 +603,6 @@ function loadSettings() {
     if (settings.hrEmails) {
         document.getElementById('hr-emails').value = settings.hrEmails;
     }
-    if (settings.sheetsUrl) {
-        document.getElementById('sheets-url').value = settings.sheetsUrl;
-    } else {
-        // Set default Google Sheets URL
-        document.getElementById('sheets-url').value = 'https://docs.google.com/spreadsheets/d/12yfnfWguB0OPhTAkEwaP4yoS0ABBDYZ0CwtyAidWv70/edit';
-    }
-    if (settings.sheetsWebAppUrl) {
-        document.getElementById('sheets-webapp-url').value = settings.sheetsWebAppUrl;
-    }
 }
 
 function saveEmailSettings() {
@@ -626,17 +617,6 @@ function saveEmailSettings() {
     alert('Email settings saved successfully!');
 }
 
-function saveSheetsSettings() {
-    const sheetsUrl = document.getElementById('sheets-url').value;
-    const sheetsWebAppUrl = document.getElementById('sheets-webapp-url').value;
-    
-    const settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
-    settings.sheetsUrl = sheetsUrl;
-    settings.sheetsWebAppUrl = sheetsWebAppUrl;
-    
-    localStorage.setItem('admin_settings', JSON.stringify(settings));
-    alert('Google Sheets settings saved! Applications will now be logged to your Google Sheet.');
-}
 
 function changeAdminCredentials() {
     const newUsername = document.getElementById('new-username').value;
@@ -684,7 +664,6 @@ window.updateJobImagePreview = updateJobImagePreview;
 window.viewResume = viewResume;
 window.downloadResume = downloadResume;
 window.saveEmailSettings = saveEmailSettings;
-window.saveSheetsSettings = saveSheetsSettings;
 window.changeAdminCredentials = changeAdminCredentials;
 
 // Initialize on page load

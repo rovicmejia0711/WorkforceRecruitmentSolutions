@@ -280,7 +280,7 @@ function handleFormSubmit(e) {
     buttonLoader.style.display = 'inline-block';
     formMessage.textContent = '';
     
-    // Save to Google Sheets (if configured) or localStorage
+    // Save to localStorage
     saveApplication(applicationData, jobTitle, formData.get('resume'))
         .then(() => {
             // Send email notification
@@ -314,7 +314,7 @@ function fileToBase64(file) {
     });
 }
 
-// Save application to storage/Google Sheets
+// Save application to storage
 async function saveApplication(applicationData, jobTitle, resumeFile) {
     // Save to localStorage (for demo)
     const applications = JSON.parse(localStorage.getItem('applications') || '[]');
@@ -341,40 +341,6 @@ async function saveApplication(applicationData, jobTitle, resumeFile) {
         resumeData: resumeData
     });
     localStorage.setItem('applications', JSON.stringify(applications));
-    
-    // Save to Google Sheets if configured
-    const settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
-    if (settings.sheetsWebAppUrl) {
-        try {
-            const payload = {
-                name: applicationData.name,
-                email: applicationData.email,
-                phone: applicationData.phone,
-                position: jobTitle,
-                experience: applicationData.experience || '',
-                coverLetter: applicationData.coverLetter || '',
-                resumeFileName: resumeFileName
-            };
-            
-            // Send to Google Sheets via Web App (using no-cors since we can't read response)
-            // The web app will handle the data submission
-            fetch(settings.sheetsWebAppUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            }).catch(error => {
-                console.error('Error sending to Google Sheets:', error);
-            });
-            
-            console.log('Application sent to Google Sheets');
-        } catch (error) {
-            console.error('Error sending to Google Sheets:', error);
-            // Continue even if Google Sheets fails
-        }
-    }
     
     return Promise.resolve();
 }
