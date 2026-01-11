@@ -91,6 +91,8 @@ function getActiveJobs() {
 // Render jobs
 function renderJobs() {
     const jobsContainer = document.getElementById('jobs-container');
+    if (!jobsContainer) return; // Exit if jobs container doesn't exist on this page
+    
     const activeJobs = getActiveJobs();
     
     if (activeJobs.length === 0) {
@@ -123,7 +125,7 @@ function renderJobs() {
                 <div class="job-description">${escapeHtml(job.description)}</div>
                 <div class="job-card-actions">
                     <button class="btn-primary" onclick="viewJobDetails(${job.id})">View Details</button>
-                    <a href="#contact" class="btn-secondary" onclick="selectJobForApplication(${job.id})">Apply Now</a>
+                    <a href="apply.html?job=${job.id}" class="btn-secondary" onclick="selectJobForApplication(${job.id})">Apply Now</a>
                 </div>
             </div>
         </div>
@@ -133,6 +135,8 @@ function renderJobs() {
 // Populate position dropdown
 function populatePositionDropdown() {
     const select = document.getElementById('position-interest');
+    if (!select) return; // Exit if position dropdown doesn't exist on this page
+    
     const activeJobs = getActiveJobs();
     
     select.innerHTML = '<option value="">Select a position...</option>' +
@@ -188,7 +192,7 @@ function viewJobDetails(jobId) {
             ${job.additionalInfo ? `<p><strong>Additional Information:</strong> ${escapeHtml(job.additionalInfo)}</p>` : ''}
         </div>
         <div style="margin-top: 2rem; text-align: center;">
-            <a href="#contact" class="btn-primary" onclick="selectJobForApplication(${job.id}); closeModal();" style="display: inline-block; text-decoration: none;">Apply Now</a>
+            <a href="apply.html?job=${job.id}" class="btn-primary" onclick="selectJobForApplication(${job.id}); closeModal();" style="display: inline-block; text-decoration: none;">Apply Now</a>
         </div>
     `;
     
@@ -204,7 +208,18 @@ function closeModal() {
 // Select job for application
 function selectJobForApplication(jobId) {
     const select = document.getElementById('position-interest');
-    select.value = jobId;
+    if (select) {
+        select.value = jobId;
+    }
+}
+
+// Auto-select job from URL parameter when on apply page
+function autoSelectJobFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const jobId = urlParams.get('job');
+    if (jobId) {
+        selectJobForApplication(jobId);
+    }
 }
 
 // File upload handling
@@ -487,6 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupMobileNav();
     setupModalClose();
     setupSmoothScroll();
+    autoSelectJobFromURL();
     
     // Form submission
     const applicationForm = document.getElementById('application-form');

@@ -9,6 +9,9 @@ Disallow: /admin.html
 
 # Allow all other pages
 Allow: /WorkforceRecruitmentSolution.html
+Allow: /jobs.html
+Allow: /about.html
+Allow: /apply.html
 Allow: /thank-you.html
 
 # Sitemap location (update with your actual domain)

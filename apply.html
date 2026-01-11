@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Apply for a position at Workforce Recruitment Solutions. Submit your application and take the next step in your career.">
+    <title>Apply Now - Workforce Recruitment Solutions</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>Workforce Recruitment Solutions</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="WorkforceRecruitmentSolution.html">Home</a></li>
+                <li><a href="jobs.html">Jobs</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="apply.html" class="active">Apply</a></li>
+            </ul>
+            <button class="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Contact/Apply Section -->
+    <section id="contact" class="contact-section" style="margin-top: 80px;">
+        <div class="container">
+            <div class="section-label">Get Started</div>
+            <h2 class="section-title">Apply Now</h2>
+            <p class="section-subtitle">Submit your application and take the next step in your career. We're here to help you succeed.</p>
+            <form id="application-form" class="application-form" name="application" netlify netlify-honeypot="website" method="POST" data-netlify="true">
+                <div class="form-group">
+                    <label for="applicant-name">Full Name *</label>
+                    <input type="text" id="applicant-name" name="name" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="applicant-email">Email Address *</label>
+                        <input type="email" id="applicant-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="applicant-phone">Phone Number *</label>
+                        <input type="tel" id="applicant-phone" name="phone" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="position-interest">Position of Interest *</label>
+                    <select id="position-interest" name="position" required>
+                        <option value="">Select a position...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="applicant-experience">Years of Experience *</label>
+                    <input type="number" id="applicant-experience" name="experience" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="resume-upload">Upload Resume (PDF or DOCX) *</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="resume-upload" name="resume" accept=".pdf,.doc,.docx" required>
+                        <label for="resume-upload" class="file-upload-label">
+                            <span class="file-upload-text">Choose file or drag it here</span>
+                            <span class="file-upload-button">Browse</span>
+                        </label>
+                        <span class="file-name"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cover-letter">Cover Letter / Additional Notes</label>
+                    <textarea id="cover-letter" name="coverLetter" rows="5" placeholder="Tell us why you're interested in this position..."></textarea>
+                </div>
+
+                <!-- Honeypot field for spam protection -->
+                <input type="text" name="website" class="honeypot" tabindex="-1" autocomplete="off">
+
+                <button type="submit" class="submit-button">
+                    <span class="button-text">Submit Application</span>
+                    <span class="button-loader" style="display: none;"></span>
+                </button>
+                
+                <div id="form-message" class="form-message"></div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <p>&copy; 2026 Workforce Recruitment Solutions. All Rights Reserved.</p>
+                    <p>EST. 2023 | Building careers, one placement at a time.</p>
+                </div>
+                <div class="footer-contact">
+                    <p class="contact-title">Contact Us</p>
+                    <p class="contact-item">
+                        <span class="contact-icon">📧</span>
+                        <a href="mailto:rovicmejia.hrd@gmail.com">rovicmejia.hrd@gmail.com</a>
+                    </p>
+                    <p class="contact-item">
+                        <span class="contact-icon">📞</span>
+                        <a href="tel:+639755636276">+63 975 563 6276</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

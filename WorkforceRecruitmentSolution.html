@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Workforce Recruitment Solutions - Connecting skilled professionals with organizations that value growth, integrity, and long-term success.">
-    <title>Workforce Recruitment Solutions - Talent & Opportunity</title>
+    <title>Home - Workforce Recruitment Solutions</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,10 +18,10 @@
                 <h1>Workforce Recruitment Solutions</h1>
             </div>
             <ul class="nav-menu">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#jobs">Jobs</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Apply</a></li>
+                <li><a href="WorkforceRecruitmentSolution.html" class="active">Home</a></li>
+                <li><a href="jobs.html">Jobs</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="apply.html">Apply</a></li>
             </ul>
             <button class="nav-toggle" aria-label="Toggle navigation">
                 <span></span>
@@ -47,7 +47,7 @@
                         <p>We exist to bridge talent and opportunity—helping individuals build meaningful careers while enabling companies to strengthen their workforce through ethical, strategic, and results-driven hiring.</p>
                     </div>
                 </div>
-                <a href="#jobs" class="cta-button">View Open Positions</a>
+                <a href="jobs.html" class="cta-button">View Open Positions</a>
             </div>
         </div>
     </section>
@@ -68,135 +68,6 @@
                 <p>"We don't just fill roles—we build careers. Our commitment is to place people where they can grow, thrive, and make meaningful impact."</p>
                 <cite>— Rovic Deniel L. Mejia, HR Officer & Recruitment Specialist</cite>
             </blockquote>
-        </div>
-    </section>
-
-    <!-- Section Divider -->
-    <div class="section-divider">
-        <div class="divider-line"></div>
-        <div class="divider-icon">📋</div>
-        <div class="divider-line"></div>
-    </div>
-
-    <!-- Job Openings Section -->
-    <section id="jobs" class="jobs-section">
-        <div class="container">
-            <div class="section-label">Career Opportunities</div>
-            <h2 class="section-title">Current Openings</h2>
-            <p class="section-subtitle">Join our team and make a difference. Explore exciting career opportunities below.</p>
-            <div id="jobs-container" class="jobs-grid">
-                <!-- Jobs will be dynamically rendered here -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Section Divider -->
-    <div class="section-divider">
-        <div class="divider-line"></div>
-        <div class="divider-icon">👤</div>
-        <div class="divider-line"></div>
-    </div>
-
-    <!-- About Section -->
-    <section id="about" class="about-section">
-        <div class="container">
-            <div class="section-label">Our Team</div>
-            <h2 class="section-title">Meet Our HR Officer</h2>
-            <p class="section-subtitle">Learn about the person behind your recruitment journey</p>
-            <div class="about-content">
-                <div class="about-image">
-                    <div class="image-container">
-                        <img src="Solo Business Pic.png" alt="Rovic Deniel Labuguen Mejia - HR Officer & Recruitment Specialist" class="profile-image">
-                    </div>
-                </div>
-                <div class="about-text">
-                    <div class="about-header">
-                        <h3>Rovic Deniel Labuguen Mejia</h3>
-                        <p class="job-title">HR Officer & Recruitment Specialist</p>
-                        <div class="experience-badge">
-                            <span class="badge-icon">⭐</span>
-                            <span>3+ Years Experience</span>
-                        </div>
-                    </div>
-                    <div class="about-description">
-                        <p>Rovic Deniel Labuguen Mejia is a dynamic HR and creative professional with over 3+ years of combined experience in talent acquisition, employee engagement, compensation & benefits, and HR operations.</p>
-                        <p>He has a proven track record of reducing hiring cycle time by 25%, strengthening employee engagement initiatives, and supporting business operations through data analysis, IT support, and process improvement.</p>
-                        <p>With hands-on experience in HR recruitment, payroll processing, HRIS (GreatDay), Monday.com and labor law awareness—combined with strong creative and technical skills—he bridges people management with innovative, results-driven solutions.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Section Divider -->
-    <div class="section-divider">
-        <div class="divider-line"></div>
-        <div class="divider-icon">📝</div>
-        <div class="divider-line"></div>
-    </div>
-
-    <!-- Contact/Apply Section -->
-    <section id="contact" class="contact-section">
-        <div class="container">
-            <div class="section-label">Get Started</div>
-            <h2 class="section-title">Apply Now</h2>
-            <p class="section-subtitle">Submit your application and take the next step in your career. We're here to help you succeed.</p>
-            <form id="application-form" class="application-form" name="application" netlify netlify-honeypot="website" method="POST" data-netlify="true">
-                <div class="form-group">
-                    <label for="applicant-name">Full Name *</label>
-                    <input type="text" id="applicant-name" name="name" required>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="applicant-email">Email Address *</label>
-                        <input type="email" id="applicant-email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="applicant-phone">Phone Number *</label>
-                        <input type="tel" id="applicant-phone" name="phone" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="position-interest">Position of Interest *</label>
-                    <select id="position-interest" name="position" required>
-                        <option value="">Select a position...</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="applicant-experience">Years of Experience *</label>
-                    <input type="number" id="applicant-experience" name="experience" min="0" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="resume-upload">Upload Resume (PDF or DOCX) *</label>
-                    <div class="file-upload-wrapper">
-                        <input type="file" id="resume-upload" name="resume" accept=".pdf,.doc,.docx" required>
-                        <label for="resume-upload" class="file-upload-label">
-                            <span class="file-upload-text">Choose file or drag it here</span>
-                            <span class="file-upload-button">Browse</span>
-                        </label>
-                        <span class="file-name"></span>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="cover-letter">Cover Letter / Additional Notes</label>
-                    <textarea id="cover-letter" name="coverLetter" rows="5" placeholder="Tell us why you're interested in this position..."></textarea>
-                </div>
-
-                <!-- Honeypot field for spam protection -->
-                <input type="text" name="website" class="honeypot" tabindex="-1" autocomplete="off">
-
-                <button type="submit" class="submit-button">
-                    <span class="button-text">Submit Application</span>
-                    <span class="button-loader" style="display: none;"></span>
-                </button>
-                
-                <div id="form-message" class="form-message"></div>
-            </form>
         </div>
     </section>
 
@@ -222,14 +93,6 @@
             </div>
         </div>
     </footer>
-
-    <!-- Job Detail Modal -->
-    <div id="job-modal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <div id="modal-job-details"></div>
-        </div>
-    </div>
 
     <script src="script.js"></script>
 </body>

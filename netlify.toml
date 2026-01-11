@@ -7,25 +7,18 @@
   command = ""
 
 # Redirect rules
-# Redirect root to main page
+# Redirect root to home page
 [[redirects]]
   from = "/"
   to = "/WorkforceRecruitmentSolution.html"
   status = 200
   force = false
 
-# Redirect old index.html to new filename (backwards compatibility)
+# Redirect old index.html to new home page (backwards compatibility)
 [[redirects]]
   from = "/index.html"
   to = "/WorkforceRecruitmentSolution.html"
   status = 301
-  force = false
-
-# Redirect all other routes to main page for SPA behavior
-[[redirects]]
-  from = "/*"
-  to = "/WorkforceRecruitmentSolution.html"
-  status = 200
   force = false
 
 # Headers for security and performance

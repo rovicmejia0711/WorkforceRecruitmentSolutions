@@ -95,6 +95,15 @@ body {
     width: 100%;
 }
 
+.nav-menu a.active {
+    color: var(--primary-red);
+    font-weight: 600;
+}
+
+.nav-menu a.active::after {
+    width: 100%;
+}
+
 .admin-link {
     color: var(--primary-red) !important;
     font-weight: 600;

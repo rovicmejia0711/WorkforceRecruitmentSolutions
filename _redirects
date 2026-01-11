@@ -1,10 +1,10 @@
 # Netlify Redirects File
-# Handles SPA routing and redirects
+# Handles page routing
 
-# Root redirect to main page
+# Root redirect to home page
 / /WorkforceRecruitmentSolution.html 200
 
-# Redirect old index.html to new filename (backwards compatibility)
+# Redirect old index.html to new home page (backwards compatibility)
 /index.html /WorkforceRecruitmentSolution.html 301
 
 # Admin access (keep this hidden)
@@ -13,6 +13,9 @@
 # Main pages
 /thank-you.html /thank-you.html 200
 /WorkforceRecruitmentSolution.html /WorkforceRecruitmentSolution.html 200
+/jobs.html /jobs.html 200
+/about.html /about.html 200
+/apply.html /apply.html 200
 
-# Fallback to main page for client-side routing
+# Fallback to home page
 /* /WorkforceRecruitmentSolution.html 200
