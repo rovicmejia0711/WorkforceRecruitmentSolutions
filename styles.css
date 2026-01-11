@@ -485,13 +485,66 @@ section:first-of-type {
 .job-card {
     background-color: var(--white);
     border-radius: 16px;
-    padding: 2.5rem;
+    padding: 0;
     box-shadow: 0 6px 20px rgba(139, 38, 53, 0.12);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
     border: 2px solid transparent;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.job-image-container {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(135deg, var(--primary-red) 0%, var(--dark-red) 100%);
+    border-radius: 16px 16px 0 0;
+}
+
+.job-image-container .job-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.job-image-container img.job-image {
+    background-color: var(--gray-light);
+}
+
+.job-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: linear-gradient(135deg, rgba(139, 38, 53, 0.1) 0%, rgba(107, 26, 34, 0.1) 100%);
+}
+
+.job-image-placeholder svg {
+    width: 100%;
+    height: 100%;
+    opacity: 0.3;
+}
+
+.job-image-icon {
+    position: absolute;
+    font-size: 4rem;
+    opacity: 0.4;
+    z-index: 1;
+}
+
+.job-card-content {
+    padding: 2.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .job-card::before {
@@ -514,6 +567,15 @@ section:first-of-type {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 12px 35px rgba(139, 38, 53, 0.25);
     border-color: var(--primary-red);
+}
+
+.job-card-content .job-status {
+    align-self: flex-start;
+    margin-bottom: 1rem;
+}
+
+.job-card-content {
+    padding: 2.5rem;
 }
 
 .job-card h3 {
@@ -1002,6 +1064,46 @@ section:first-of-type {
     color: var(--primary-red);
 }
 
+.modal-job-image {
+    width: 100%;
+    height: 200px;
+    margin-bottom: 2rem;
+    border-radius: 12px;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--primary-red) 0%, var(--dark-red) 100%);
+}
+
+.modal-job-image .job-image-modal {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    background-color: var(--gray-light);
+}
+
+.modal-job-image .job-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: linear-gradient(135deg, rgba(139, 38, 53, 0.15) 0%, rgba(107, 26, 34, 0.15) 100%);
+}
+
+.modal-job-image .job-image-icon {
+    font-size: 5rem;
+    opacity: 0.5;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.modal-job-image svg {
+    width: 100%;
+    height: 100%;
+    opacity: 0.4;
+}
+
 #modal-job-details h2 {
     color: var(--primary-red);
     margin-bottom: 1rem;
@@ -1216,8 +1318,12 @@ section:first-of-type {
         grid-template-columns: 1fr;
     }
 
-    .job-card {
+    .job-card-content {
         padding: 2rem;
+    }
+
+    .job-image-container {
+        height: 160px;
     }
 
     .about-content {
@@ -1336,8 +1442,16 @@ section:first-of-type {
         padding: 60px 0;
     }
 
-    .job-card {
+    .job-card-content {
         padding: 1.5rem;
+    }
+
+    .job-image-container {
+        height: 140px;
+    }
+
+    .job-image-icon {
+        font-size: 3rem;
     }
 
     .job-card h3 {

@@ -100,16 +100,31 @@ function renderJobs() {
     
     jobsContainer.innerHTML = activeJobs.map(job => `
         <div class="job-card">
-            <span class="job-status active">Active</span>
-            <h3>${escapeHtml(job.title)}</h3>
-            <div class="job-meta">
-                <span>📍 ${escapeHtml(job.location)}</span>
-                <span>💼 ${escapeHtml(job.experience)}</span>
+            <div class="job-image-container">
+                ${job.imageUrl ? 
+                    `<img src="${escapeHtml(job.imageUrl)}" alt="${escapeHtml(job.title)}" class="job-image" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'job-image-placeholder\\'><svg width=\\'100\\' height=\\'100\\' viewBox=\\'0 0 100 100\\' fill=\\'none\\' xmlns=\\'http://www.w3.org/2000/svg\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'#8B2635\\' opacity=\\'0.1\\'/><circle cx=\\'50\\' cy=\\'35\\' r=\\'12\\' fill=\\'#8B2635\\' opacity=\\'0.3\\'/><path d=\\'M25 75 Q25 60 50 60 Q75 60 75 75\\' stroke=\\'#8B2635\\' stroke-width=\\'8\\' stroke-linecap=\\'round\\' opacity=\\'0.3\\'/></svg><span class=\\'job-image-icon\\'>💼</span></div>';">` :
+                    `<div class="job-image-placeholder">
+                        <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="100" height="100" fill="#8B2635" opacity="0.1"/>
+                            <circle cx="50" cy="35" r="12" fill="#8B2635" opacity="0.3"/>
+                            <path d="M25 75 Q25 60 50 60 Q75 60 75 75" stroke="#8B2635" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
+                        </svg>
+                        <span class="job-image-icon">💼</span>
+                    </div>`
+                }
             </div>
-            <div class="job-description">${escapeHtml(job.description)}</div>
-            <div class="job-card-actions">
-                <button class="btn-primary" onclick="viewJobDetails(${job.id})">View Details</button>
-                <a href="#contact" class="btn-secondary" onclick="selectJobForApplication(${job.id})">Apply Now</a>
+            <div class="job-card-content">
+                <span class="job-status active">Active</span>
+                <h3>${escapeHtml(job.title)}</h3>
+                <div class="job-meta">
+                    <span>📍 ${escapeHtml(job.location)}</span>
+                    <span>💼 ${escapeHtml(job.experience)}</span>
+                </div>
+                <div class="job-description">${escapeHtml(job.description)}</div>
+                <div class="job-card-actions">
+                    <button class="btn-primary" onclick="viewJobDetails(${job.id})">View Details</button>
+                    <a href="#contact" class="btn-secondary" onclick="selectJobForApplication(${job.id})">Apply Now</a>
+                </div>
             </div>
         </div>
     `).join('');
@@ -137,6 +152,19 @@ function viewJobDetails(jobId) {
     const modalContent = document.getElementById('modal-job-details');
     
     modalContent.innerHTML = `
+        <div class="modal-job-image">
+            ${job.imageUrl ? 
+                `<img src="${escapeHtml(job.imageUrl)}" alt="${escapeHtml(job.title)}" class="job-image-modal" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'job-image-placeholder\\'><svg width=\\'100\\' height=\\'100\\' viewBox=\\'0 0 100 100\\' fill=\\'none\\' xmlns=\\'http://www.w3.org/2000/svg\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'#8B2635\\' opacity=\\'0.1\\'/><circle cx=\\'50\\' cy=\\'35\\' r=\\'12\\' fill=\\'#8B2635\\' opacity=\\'0.3\\'/><path d=\\'M25 75 Q25 60 50 60 Q75 60 75 75\\' stroke=\\'#8B2635\\' stroke-width=\\'8\\' stroke-linecap=\\'round\\' opacity=\\'0.3\\'/></svg><span class=\\'job-image-icon\\'>💼</span></div>';">` :
+                `<div class="job-image-placeholder">
+                    <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="#8B2635" opacity="0.1"/>
+                        <circle cx="50" cy="35" r="12" fill="#8B2635" opacity="0.3"/>
+                        <path d="M25 75 Q25 60 50 60 Q75 60 75 75" stroke="#8B2635" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
+                    </svg>
+                    <span class="job-image-icon">💼</span>
+                </div>`
+            }
+        </div>
         <h2>${escapeHtml(job.title)}</h2>
         <div class="job-meta">
             <span>📍 ${escapeHtml(job.location)}</span>
@@ -276,27 +304,75 @@ function handleFormSubmit(e) {
         });
 }
 
+// Convert file to base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
 // Save application to storage/Google Sheets
 async function saveApplication(applicationData, jobTitle, resumeFile) {
     // Save to localStorage (for demo)
     const applications = JSON.parse(localStorage.getItem('applications') || '[]');
+    
+    let resumeData = null;
+    let resumeFileName = 'No file';
+    let resumeFileType = null;
+    
+    if (resumeFile) {
+        resumeFileName = resumeFile.name;
+        resumeFileType = resumeFile.type;
+        try {
+            resumeData = await fileToBase64(resumeFile);
+        } catch (error) {
+            console.error('Error converting resume to base64:', error);
+        }
+    }
+    
     applications.push({
         ...applicationData,
         jobTitle: jobTitle,
-        resumeFileName: resumeFile ? resumeFile.name : 'No file'
+        resumeFileName: resumeFileName,
+        resumeFileType: resumeFileType,
+        resumeData: resumeData
     });
     localStorage.setItem('applications', JSON.stringify(applications));
     
     // Save to Google Sheets if configured
-    if (typeof google !== 'undefined' && google.script && google.script.run) {
+    const settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+    if (settings.sheetsWebAppUrl) {
         try {
-            google.script.run.withSuccessHandler(() => {
-                console.log('Application saved to Google Sheets');
-            }).withFailureHandler((error) => {
-                console.error('Error saving to Google Sheets:', error);
-            }).saveApplication(applicationData, jobTitle);
-        } catch (e) {
-            console.log('Google Sheets not available, using localStorage only');
+            const payload = {
+                name: applicationData.name,
+                email: applicationData.email,
+                phone: applicationData.phone,
+                position: jobTitle,
+                experience: applicationData.experience || '',
+                coverLetter: applicationData.coverLetter || '',
+                resumeFileName: resumeFileName
+            };
+            
+            // Send to Google Sheets via Web App (using no-cors since we can't read response)
+            // The web app will handle the data submission
+            fetch(settings.sheetsWebAppUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            }).catch(error => {
+                console.error('Error sending to Google Sheets:', error);
+            });
+            
+            console.log('Application sent to Google Sheets');
+        } catch (error) {
+            console.error('Error sending to Google Sheets:', error);
+            // Continue even if Google Sheets fails
         }
     }
     

@@ -237,15 +237,18 @@ function openJobModal(jobId = null) {
             document.getElementById('job-experience').value = job.experience;
             document.getElementById('job-status').value = job.status;
             document.getElementById('job-description').value = job.description;
+            document.getElementById('job-image-url').value = job.imageUrl || '';
             document.getElementById('job-responsibilities').value = job.responsibilities.join('\n');
             document.getElementById('job-required-skills').value = job.requiredSkills.join('\n');
             document.getElementById('job-additional-info').value = job.additionalInfo || '';
+            updateJobImagePreview();
         }
     } else {
         modalTitle.textContent = 'Add New Job';
         form.reset();
         document.getElementById('job-id').value = '';
         document.getElementById('job-status').value = 'active';
+        document.getElementById('job-image-preview').style.display = 'none';
     }
     
     modal.style.display = 'block';
@@ -254,6 +257,27 @@ function openJobModal(jobId = null) {
 function closeJobModal() {
     document.getElementById('job-modal-admin').style.display = 'none';
     document.getElementById('job-form').reset();
+    document.getElementById('job-image-preview').style.display = 'none';
+}
+
+// Update job image preview
+function updateJobImagePreview() {
+    const imageUrl = document.getElementById('job-image-url').value.trim();
+    const previewDiv = document.getElementById('job-image-preview');
+    const previewImg = document.getElementById('job-image-preview-img');
+    
+    if (imageUrl) {
+        previewImg.src = imageUrl;
+        previewImg.onerror = function() {
+            previewDiv.style.display = 'none';
+        };
+        previewImg.onload = function() {
+            previewDiv.style.display = 'block';
+        };
+        previewDiv.style.display = 'block';
+    } else {
+        previewDiv.style.display = 'none';
+    }
 }
 
 // Handle job form submission
@@ -271,6 +295,7 @@ function handleJobFormSubmit(e) {
         experience: document.getElementById('job-experience').value,
         status: document.getElementById('job-status').value,
         description: document.getElementById('job-description').value,
+        imageUrl: document.getElementById('job-image-url').value.trim() || null,
         responsibilities: document.getElementById('job-responsibilities').value.split('\n').filter(r => r.trim()),
         requiredSkills: document.getElementById('job-required-skills').value.split('\n').filter(s => s.trim()),
         additionalInfo: document.getElementById('job-additional-info').value.trim()
@@ -395,13 +420,139 @@ function renderApplications() {
             ` : ''}
             <div class="application-card-actions">
                 <a href="mailto:${app.email}" class="btn-small btn-edit">Email Candidate</a>
-                ${app.resumeFileName && app.resumeFileName !== 'No file' ? 
-                    `<span class="application-info-label">Resume: ${escapeHtml(app.resumeFileName)}</span>` : 
+                ${app.resumeFileName && app.resumeFileName !== 'No file' && app.resumeData ? 
+                    `<div class="resume-actions">
+                        <span class="application-info-label" style="margin-right: 0.5rem;">Resume: ${escapeHtml(app.resumeFileName)}</span>
+                        <button class="btn-small btn-view-resume" onclick="viewResume(${index})" title="View Resume">👁️ View</button>
+                        <button class="btn-small btn-download-resume" onclick="downloadResume(${index})" title="Download Resume">📥 Download</button>
+                    </div>` : 
+                    app.resumeFileName && app.resumeFileName !== 'No file' ?
+                    `<span class="application-info-label">Resume: ${escapeHtml(app.resumeFileName)} (File not available)</span>` :
                     '<span class="application-info-label">No resume uploaded</span>'
                 }
             </div>
         </div>
     `).join('');
+}
+
+// View resume in new window
+function viewResume(applicationIndex) {
+    const applications = JSON.parse(localStorage.getItem('applications') || '[]');
+    const sortedApplications = [...applications].sort((a, b) => 
+        new Date(b.timestamp) - new Date(a.timestamp)
+    );
+    
+    if (applicationIndex >= 0 && applicationIndex < sortedApplications.length) {
+        const app = sortedApplications[applicationIndex];
+        if (app.resumeData) {
+            const newWindow = window.open('', '_blank');
+            if (newWindow) {
+                const isPDF = app.resumeFileType && app.resumeFileType.includes('pdf');
+                const fileExtension = app.resumeFileName ? app.resumeFileName.split('.').pop().toLowerCase() : '';
+                const isPDFByExtension = fileExtension === 'pdf';
+                
+                if (isPDF || isPDFByExtension) {
+                    // For PDFs, use embed
+                    newWindow.document.write(`
+                        <html>
+                            <head>
+                                <title>Resume - ${escapeHtml(app.name)}</title>
+                                <style>
+                                    body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+                                    .header { padding: 15px 20px; background: #f5f5f5; border-bottom: 2px solid #ddd; }
+                                    .header h2 { margin: 0; color: #333; font-size: 1.2rem; }
+                                    .header p { margin: 5px 0 0 0; color: #666; font-size: 0.9rem; }
+                                    embed { width: 100%; height: calc(100vh - 80px); border: none; }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="header">
+                                    <h2>${escapeHtml(app.name)} - Resume</h2>
+                                    <p>Position: ${escapeHtml(app.jobTitle || 'N/A')} | Applied: ${formatDate(app.timestamp)}</p>
+                                </div>
+                                <embed src="${app.resumeData}" type="application/pdf" />
+                            </body>
+                        </html>
+                    `);
+                } else {
+                    // For images or other files, use img or iframe
+                    newWindow.document.write(`
+                        <html>
+                            <head>
+                                <title>Resume - ${escapeHtml(app.name)}</title>
+                                <style>
+                                    body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #f5f5f5; }
+                                    .header { padding: 15px; background: white; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                                    .header h2 { margin: 0; color: #333; font-size: 1.2rem; }
+                                    .header p { margin: 5px 0 0 0; color: #666; font-size: 0.9rem; }
+                                    .content { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                                    img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; }
+                                    iframe { width: 100%; min-height: 600px; border: 1px solid #ddd; border-radius: 4px; }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="header">
+                                    <h2>${escapeHtml(app.name)} - Resume</h2>
+                                    <p>Position: ${escapeHtml(app.jobTitle || 'N/A')} | Applied: ${formatDate(app.timestamp)}</p>
+                                </div>
+                                <div class="content">
+                                    ${app.resumeFileType && app.resumeFileType.includes('image') ? 
+                                        `<img src="${app.resumeData}" alt="Resume" />` : 
+                                        `<iframe src="${app.resumeData}"></iframe>`
+                                    }
+                                </div>
+                            </body>
+                        </html>
+                    `);
+                }
+                newWindow.document.close();
+            } else {
+                alert('Please allow pop-ups to view the resume in a new window.');
+            }
+        } else {
+            alert('Resume file data is not available.');
+        }
+    }
+}
+
+// Download resume
+function downloadResume(applicationIndex) {
+    const applications = JSON.parse(localStorage.getItem('applications') || '[]');
+    const sortedApplications = [...applications].sort((a, b) => 
+        new Date(b.timestamp) - new Date(a.timestamp)
+    );
+    
+    if (applicationIndex >= 0 && applicationIndex < sortedApplications.length) {
+        const app = sortedApplications[applicationIndex];
+        if (app.resumeData) {
+            try {
+                // Convert base64 to blob
+                const base64Data = app.resumeData.split(',')[1];
+                const byteCharacters = atob(base64Data);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: app.resumeFileType || 'application/pdf' });
+                
+                // Create download link
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = app.resumeFileName || 'resume.pdf';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Error downloading resume:', error);
+                alert('Error downloading resume. Please try again.');
+            }
+        } else {
+            alert('Resume file data is not available.');
+        }
+    }
 }
 
 // Export applications to CSV
@@ -454,6 +605,12 @@ function loadSettings() {
     }
     if (settings.sheetsUrl) {
         document.getElementById('sheets-url').value = settings.sheetsUrl;
+    } else {
+        // Set default Google Sheets URL
+        document.getElementById('sheets-url').value = 'https://docs.google.com/spreadsheets/d/12yfnfWguB0OPhTAkEwaP4yoS0ABBDYZ0CwtyAidWv70/edit';
+    }
+    if (settings.sheetsWebAppUrl) {
+        document.getElementById('sheets-webapp-url').value = settings.sheetsWebAppUrl;
     }
 }
 
@@ -471,12 +628,14 @@ function saveEmailSettings() {
 
 function saveSheetsSettings() {
     const sheetsUrl = document.getElementById('sheets-url').value;
+    const sheetsWebAppUrl = document.getElementById('sheets-webapp-url').value;
     
     const settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
     settings.sheetsUrl = sheetsUrl;
+    settings.sheetsWebAppUrl = sheetsWebAppUrl;
     
     localStorage.setItem('admin_settings', JSON.stringify(settings));
-    alert('Google Sheets settings saved! Make sure to configure the Google Apps Script for integration.');
+    alert('Google Sheets settings saved! Applications will now be logged to your Google Sheet.');
 }
 
 function changeAdminCredentials() {
@@ -521,6 +680,9 @@ window.editJob = editJob;
 window.deleteJob = deleteJob;
 window.toggleArchiveJob = toggleArchiveJob;
 window.closeJobModal = closeJobModal;
+window.updateJobImagePreview = updateJobImagePreview;
+window.viewResume = viewResume;
+window.downloadResume = downloadResume;
 window.saveEmailSettings = saveEmailSettings;
 window.saveSheetsSettings = saveSheetsSettings;
 window.changeAdminCredentials = changeAdminCredentials;

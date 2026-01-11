@@ -367,6 +367,33 @@
     margin-top: 1rem;
     display: flex;
     gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.resume-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-view-resume {
+    background-color: #17A2B8;
+    color: var(--white);
+}
+
+.btn-view-resume:hover {
+    background-color: #138496;
+}
+
+.btn-download-resume {
+    background-color: #28A745;
+    color: var(--white);
+}
+
+.btn-download-resume:hover {
+    background-color: #218838;
 }
 
 /* Settings */
