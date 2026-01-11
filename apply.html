@@ -37,62 +37,49 @@
             <div class="section-label">Get Started</div>
             <h2 class="section-title">Apply Now</h2>
             <p class="section-subtitle">Submit your application and take the next step in your career. We're here to help you succeed.</p>
-            <form id="application-form" class="application-form" name="application" netlify netlify-honeypot="website" method="POST" data-netlify="true">
-                <div class="form-group">
-                    <label for="applicant-name">Full Name *</label>
-                    <input type="text" id="applicant-name" name="name" required>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="applicant-email">Email Address *</label>
-                        <input type="email" id="applicant-email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="applicant-phone">Phone Number *</label>
-                        <input type="tel" id="applicant-phone" name="phone" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="position-interest">Position of Interest *</label>
-                    <select id="position-interest" name="position" required>
-                        <option value="">Select a position...</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="applicant-experience">Years of Experience *</label>
-                    <input type="number" id="applicant-experience" name="experience" min="0" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="resume-upload">Upload Resume (PDF or DOCX) *</label>
-                    <div class="file-upload-wrapper">
-                        <input type="file" id="resume-upload" name="resume" accept=".pdf,.doc,.docx" required>
-                        <label for="resume-upload" class="file-upload-label">
-                            <span class="file-upload-text">Choose file or drag it here</span>
-                            <span class="file-upload-button">Browse</span>
-                        </label>
-                        <span class="file-name"></span>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="cover-letter">Cover Letter / Additional Notes</label>
-                    <textarea id="cover-letter" name="coverLetter" rows="5" placeholder="Tell us why you're interested in this position..."></textarea>
-                </div>
-
-                <!-- Honeypot field for spam protection -->
-                <input type="text" name="website" class="honeypot" tabindex="-1" autocomplete="off">
-
-                <button type="submit" class="submit-button">
-                    <span class="button-text">Submit Application</span>
-                    <span class="button-loader" style="display: none;"></span>
-                </button>
-                
-                <div id="form-message" class="form-message"></div>
-            </form>
+            
+            <!-- Embedded Google Form -->
+            <div class="google-form-container">
+                <!-- 
+                    GOOGLE FORM EMBED CONFIGURATION:
+                    ==================================
+                    To get the correct embed URL:
+                    1. Open your Google Form: https://forms.gle/xPnqiE2Cytt9VyuAA
+                    2. Click the "Send" button (top right corner)
+                    3. Click the "< >" (embed) icon tab
+                    4. Adjust width/height if needed (optional)
+                    5. Copy the iframe code provided
+                    6. Extract the src URL from the iframe code
+                    7. Replace the src URL below with your actual form embed URL
+                    
+                    Example format:
+                    https://docs.google.com/forms/d/e/[YOUR_FORM_ID]/viewform?embedded=true
+                -->
+                <iframe 
+                    src="https://docs.google.com/forms/d/e/1FAIpQLSdXxPnqiE2Cytt9VyuAA/viewform?embedded=true" 
+                    width="100%" 
+                    height="1200" 
+                    frameborder="0" 
+                    marginheight="0" 
+                    marginwidth="0"
+                    title="Application Form - Workforce Recruitment Solutions"
+                    style="border: none; min-height: 1200px;"
+                    loading="lazy">
+                    <p>Your browser does not support iframes. 
+                        <a href="https://forms.gle/xPnqiE2Cytt9VyuAA" target="_blank" rel="noopener noreferrer">
+                            Click here to open the application form in a new window
+                        </a>.
+                    </p>
+                </iframe>
+            </div>
+            
+            <!-- Alternative link if iframe doesn't work -->
+            <div class="form-fallback" style="text-align: center; margin-top: 2rem;">
+                <p style="color: var(--text-light); margin-bottom: 1rem;">Having trouble viewing the form?</p>
+                <a href="https://forms.gle/xPnqiE2Cytt9VyuAA" target="_blank" rel="noopener noreferrer" class="cta-button" style="display: inline-block;">
+                    Open Form in New Window
+                </a>
+            </div>
         </div>
     </section>
 
@@ -120,5 +107,32 @@
     </footer>
 
     <script src="script.js"></script>
+    <script>
+        // Try to load the Google Form
+        // If the iframe fails to load, show the fallback link
+        window.addEventListener('load', function() {
+            const iframe = document.querySelector('.google-form-container iframe');
+            if (iframe) {
+                iframe.addEventListener('error', function() {
+                    // If iframe fails, ensure fallback is visible
+                    const fallback = document.querySelector('.form-fallback');
+                    if (fallback) {
+                        fallback.style.display = 'block';
+                    }
+                });
+                
+                // Check if iframe loaded successfully after a delay
+                setTimeout(function() {
+                    try {
+                        // Try to access iframe content (will fail if cross-origin, but that's expected)
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    } catch (e) {
+                        // Cross-origin error is expected and means the iframe is working
+                        // If we get here, the iframe is likely loading correctly
+                    }
+                }, 2000);
+            }
+        });
+    </script>
 </body>
 </html>

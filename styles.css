@@ -626,6 +626,7 @@ section:first-of-type {
     line-height: 1.7;
     display: -webkit-box;
     -webkit-line-clamp: 4;
+    line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -831,6 +832,57 @@ section:first-of-type {
 .contact-section .section-label {
     position: relative;
     z-index: 2;
+}
+
+/* Google Form Container */
+.google-form-container {
+    max-width: 900px;
+    margin: 2rem auto 0;
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.google-form-container::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-red), var(--primary-maroon));
+    border-radius: 2px;
+}
+
+.google-form-container iframe {
+    border: none;
+    border-radius: 12px;
+    min-height: 1200px;
+}
+
+@media (max-width: 768px) {
+    .google-form-container {
+        padding: 1.5rem;
+        margin: 1.5rem auto 0;
+    }
+    
+    .google-form-container iframe {
+        min-height: 1000px;
+    }
+}
+
+@media (max-width: 480px) {
+    .google-form-container {
+        padding: 1rem;
+    }
+    
+    .google-form-container iframe {
+        min-height: 800px;
+    }
 }
 
 .application-form {

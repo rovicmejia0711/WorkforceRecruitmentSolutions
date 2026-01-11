@@ -237,18 +237,38 @@ function openJobModal(jobId = null) {
             document.getElementById('job-experience').value = job.experience;
             document.getElementById('job-status').value = job.status;
             document.getElementById('job-description').value = job.description;
-            document.getElementById('job-image-url').value = job.imageUrl || '';
+            // Handle image (could be URL or base64)
+            if (job.imageUrl) {
+                document.getElementById('job-image-data').value = job.imageUrl;
+                // Check if it's a base64 image or URL
+                if (job.imageUrl.startsWith('data:image')) {
+                    // It's base64, show preview
+                    document.getElementById('job-image-preview-img').src = job.imageUrl;
+                    document.getElementById('job-image-preview').style.display = 'block';
+                    document.getElementById('job-image-file-name').textContent = 'Image loaded';
+                } else {
+                    // It's a URL (legacy), convert to preview
+                    document.getElementById('job-image-preview-img').src = job.imageUrl;
+                    document.getElementById('job-image-preview').style.display = 'block';
+                    document.getElementById('job-image-file-name').textContent = 'Legacy URL image';
+                }
+            } else {
+                document.getElementById('job-image-data').value = '';
+                document.getElementById('job-image-preview').style.display = 'none';
+                document.getElementById('job-image-file-name').textContent = '';
+            }
             document.getElementById('job-responsibilities').value = job.responsibilities.join('\n');
             document.getElementById('job-required-skills').value = job.requiredSkills.join('\n');
             document.getElementById('job-additional-info').value = job.additionalInfo || '';
-            updateJobImagePreview();
         }
     } else {
         modalTitle.textContent = 'Add New Job';
         form.reset();
         document.getElementById('job-id').value = '';
         document.getElementById('job-status').value = 'active';
+        document.getElementById('job-image-data').value = '';
         document.getElementById('job-image-preview').style.display = 'none';
+        document.getElementById('job-image-file-name').textContent = '';
     }
     
     modal.style.display = 'block';
@@ -257,27 +277,56 @@ function openJobModal(jobId = null) {
 function closeJobModal() {
     document.getElementById('job-modal-admin').style.display = 'none';
     document.getElementById('job-form').reset();
+    document.getElementById('job-image-data').value = '';
     document.getElementById('job-image-preview').style.display = 'none';
+    document.getElementById('job-image-file-name').textContent = '';
 }
 
-// Update job image preview
-function updateJobImagePreview() {
-    const imageUrl = document.getElementById('job-image-url').value.trim();
-    const previewDiv = document.getElementById('job-image-preview');
-    const previewImg = document.getElementById('job-image-preview-img');
+// Handle job image file upload
+function handleJobImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
     
-    if (imageUrl) {
-        previewImg.src = imageUrl;
-        previewImg.onerror = function() {
-            previewDiv.style.display = 'none';
-        };
-        previewImg.onload = function() {
-            previewDiv.style.display = 'block';
-        };
-        previewDiv.style.display = 'block';
-    } else {
-        previewDiv.style.display = 'none';
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+    if (!validTypes.includes(file.type)) {
+        showNotification('Please select a valid image file (JPG, PNG, GIF, WebP, or SVG).', 'error', 'Invalid File Type');
+        event.target.value = '';
+        return;
     }
+    
+    // Validate file size (max 2MB)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+        showNotification('Image size must be less than 2MB. Please compress the image and try again.', 'error', 'File Too Large');
+        event.target.value = '';
+        return;
+    }
+    
+    // Read file as base64
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const base64Image = e.target.result;
+        document.getElementById('job-image-data').value = base64Image;
+        document.getElementById('job-image-preview-img').src = base64Image;
+        document.getElementById('job-image-preview').style.display = 'block';
+        document.getElementById('job-image-file-name').textContent = file.name;
+        document.getElementById('job-image-file-name').style.display = 'block';
+    };
+    reader.onerror = function() {
+        showNotification('Error reading image file. Please try again.', 'error', 'Upload Error');
+        event.target.value = '';
+    };
+    reader.readAsDataURL(file);
+}
+
+// Remove job image
+function removeJobImage() {
+    document.getElementById('job-image-upload').value = '';
+    document.getElementById('job-image-data').value = '';
+    document.getElementById('job-image-preview').style.display = 'none';
+    document.getElementById('job-image-file-name').textContent = '';
+    document.getElementById('job-image-file-name').style.display = 'none';
 }
 
 // Handle job form submission
@@ -295,7 +344,7 @@ function handleJobFormSubmit(e) {
         experience: document.getElementById('job-experience').value,
         status: document.getElementById('job-status').value,
         description: document.getElementById('job-description').value,
-        imageUrl: document.getElementById('job-image-url').value.trim() || null,
+        imageUrl: document.getElementById('job-image-data').value || null,
         responsibilities: document.getElementById('job-responsibilities').value.split('\n').filter(r => r.trim()),
         requiredSkills: document.getElementById('job-required-skills').value.split('\n').filter(s => s.trim()),
         additionalInfo: document.getElementById('job-additional-info').value.trim()
@@ -323,7 +372,7 @@ function handleJobFormSubmit(e) {
     renderJobsList();
     
     // Show success message
-    alert('Job saved successfully!');
+    showNotification('Job saved successfully!', 'success');
 }
 
 // Edit job
@@ -507,10 +556,10 @@ function viewResume(applicationIndex) {
                 }
                 newWindow.document.close();
             } else {
-                alert('Please allow pop-ups to view the resume in a new window.');
+                showNotification('Please allow pop-ups to view the resume in a new window.', 'warning', 'Pop-up Blocked');
             }
         } else {
-            alert('Resume file data is not available.');
+            showNotification('Resume file data is not available.', 'error', 'Resume Not Found');
         }
     }
 }
@@ -547,10 +596,10 @@ function downloadResume(applicationIndex) {
                 URL.revokeObjectURL(url);
             } catch (error) {
                 console.error('Error downloading resume:', error);
-                alert('Error downloading resume. Please try again.');
+                showNotification('Error downloading resume. Please try again.', 'error', 'Download Failed');
             }
         } else {
-            alert('Resume file data is not available.');
+            showNotification('Resume file data is not available.', 'error', 'Resume Not Found');
         }
     }
 }
@@ -560,7 +609,7 @@ function exportApplicationsToCSV() {
     const applications = JSON.parse(localStorage.getItem('applications') || '[]');
     
     if (applications.length === 0) {
-        alert('No applications to export.');
+        showNotification('No applications to export.', 'warning', 'Export Failed');
         return;
     }
     
@@ -614,7 +663,7 @@ function saveEmailSettings() {
     settings.hrEmails = hrEmails;
     
     localStorage.setItem('admin_settings', JSON.stringify(settings));
-    alert('Email settings saved successfully!');
+    showNotification('Email settings saved successfully!', 'success');
 }
 
 
@@ -623,7 +672,7 @@ function changeAdminCredentials() {
     const newPassword = document.getElementById('new-password').value;
     
     if (!newUsername || !newPassword) {
-        alert('Please enter both username and password.');
+        showNotification('Please enter both username and password.', 'error', 'Invalid Input');
         return;
     }
     
@@ -632,8 +681,10 @@ function changeAdminCredentials() {
         password: newPassword
     }));
     
-    alert('Credentials updated successfully! You will be logged out. Please login with your new credentials.');
-    handleLogout();
+    showNotification('Credentials updated successfully! You will be logged out. Please login with your new credentials.', 'success', 'Credentials Updated');
+    setTimeout(() => {
+        handleLogout();
+    }, 2000);
 }
 
 // Utility Functions
@@ -655,16 +706,55 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Notification System
+function showNotification(message, type = 'info', title = '') {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+    
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    const icons = {
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+    };
+    
+    notification.innerHTML = `
+        <div class="notification-icon">${icons[type] || icons.info}</div>
+        <div class="notification-content">
+            ${title ? `<strong>${escapeHtml(title)}</strong>` : ''}
+            <p>${escapeHtml(message)}</p>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">&times;</button>
+    `;
+    
+    container.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        notification.classList.add('hiding');
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 300);
+    }, 5000);
+}
+
 // Make functions globally available
 window.editJob = editJob;
 window.deleteJob = deleteJob;
 window.toggleArchiveJob = toggleArchiveJob;
 window.closeJobModal = closeJobModal;
-window.updateJobImagePreview = updateJobImagePreview;
+window.handleJobImageUpload = handleJobImageUpload;
+window.removeJobImage = removeJobImage;
 window.viewResume = viewResume;
 window.downloadResume = downloadResume;
 window.saveEmailSettings = saveEmailSettings;
 window.changeAdminCredentials = changeAdminCredentials;
+window.showNotification = showNotification;
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -708,6 +798,19 @@ document.addEventListener('DOMContentLoaded', function() {
     if (jobForm) {
         jobForm.addEventListener('submit', handleJobFormSubmit);
     }
+    
+    // Job image upload handler
+    const jobImageUpload = document.getElementById('job-image-upload');
+    if (jobImageUpload) {
+        jobImageUpload.addEventListener('change', handleJobImageUpload);
+    }
+    
+    // Job image remove button (use event delegation since button is in preview)
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.id === 'job-image-remove') {
+            removeJobImage();
+        }
+    });
     
     // Export applications
     const exportBtn = document.getElementById('export-applications-btn');

@@ -398,19 +398,13 @@ async function sendEmailNotification(applicationData, jobTitle) {
             throw error;
         }
     } else {
-        console.log('Email notification (demo):', {
-            to: 'hr@workforcerecruitment.com',
-            subject: `New Application: ${jobTitle}`,
-            body: `New application received for ${jobTitle} from ${applicationData.name}`
-        });
+        // Email notification would be sent here
+        // Configure EmailJS or other email service in production
     }
     */
     
-    console.log('Email notification (demo):', {
-        to: 'hr@workforcerecruitment.com',
-        subject: `New Application: ${jobTitle}`,
-        body: `New application received for ${jobTitle} from ${applicationData.name}`
-    });
+    // Email notification (demo - replace with actual email service)
+    // Configure EmailJS or other email service in production
     
     return Promise.resolve();
 }
@@ -419,12 +413,16 @@ async function sendEmailNotification(applicationData, jobTitle) {
 async function sendAutoReply(applicationData, jobTitle) {
     // EmailJS configuration for auto-reply
     // Similar to sendEmailNotification, but with auto-reply template
+    // Auto-reply email would be sent here
+    // Configure EmailJS or other email service in production
     
-    console.log('Auto-reply email (demo):', {
-        to: applicationData.email,
-        subject: `Thank you for your application - ${jobTitle}`,
-        body: `Dear ${applicationData.name},\n\nThank you for your interest in the ${jobTitle} position...`
-    });
+    // Auto-reply email (demo - replace with actual email service)
+    // Configure EmailJS or other email service in production
+    // {
+    //     to: applicationData.email,
+    //     subject: `Thank you for your application - ${jobTitle}`,
+    //     body: `Dear ${applicationData.name},\n\nThank you for your interest in the ${jobTitle} position...`
+    // }
     
     return Promise.resolve();
 }
