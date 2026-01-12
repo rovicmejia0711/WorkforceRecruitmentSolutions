@@ -1,55 +1,47 @@
-# Git Ignore File
-# Workforce Recruitment Solutions
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
 
 # Environment variables
 .env
 .env.local
-.env.*.local
+.env.production
 
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
 
-# OS files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-desktop.ini
-
-# Editor directories and files
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-.project
-.classpath
-.settings/
 
-# Netlify
-.netlify/
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
 
-# Build files (if any)
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
 dist/
 build/
-*.min.js
-*.min.css
+.next/
+out/
 
 # Temporary files
 *.tmp
 *.temp
 .cache/
 
-# Node modules (if using build tools)
-node_modules/
-
-# Optional: Keep sensitive files local
-# admin-credentials.json
-# email-config.json
+# Sensitive data (if any)
+config.local.js
+secrets.json

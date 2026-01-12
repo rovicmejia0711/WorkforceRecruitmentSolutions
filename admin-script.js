@@ -5,11 +5,10 @@ const JOBS_STORAGE_KEY = 'workforce_recruitment_jobs';
 const DEFAULT_USERNAME = 'admin';
 const DEFAULT_PASSWORD = 'admin123'; // Change this in production!
 
-// Initialize jobs if not exists (for admin dashboard)
-function initializeAdminJobs() {
-    if (!localStorage.getItem(JOBS_STORAGE_KEY)) {
-        // Default jobs (same as in script.js)
-        const defaultJobs = [
+// Initialize jobs if not exists (for admin dashboard, async)
+async function initializeAdminJobs() {
+    // Default jobs (same as in script.js)
+    const defaultJobs = [
             {
                 id: 1,
                 title: 'Oracle HRMS Techno-Functional',
@@ -76,13 +75,39 @@ function initializeAdminJobs() {
                 additionalInfo: ''
             }
         ];
-        localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(defaultJobs));
+    
+    // Use Firebase if available, otherwise localStorage
+    if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+        try {
+            await window.firebaseService.initializeJobs(defaultJobs);
+        } catch (error) {
+            console.error('Error initializing jobs in Firebase:', error);
+            // Fallback to localStorage
+            if (!localStorage.getItem(JOBS_STORAGE_KEY)) {
+                localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(defaultJobs));
+            }
+        }
+    } else {
+        // Fallback to localStorage
+        if (!localStorage.getItem(JOBS_STORAGE_KEY)) {
+            localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(defaultJobs));
+        }
     }
 }
 
-// Get all jobs (shared function)
-function getJobs() {
-    initializeAdminJobs(); // Ensure jobs are initialized
+// Get all jobs (async, uses Firebase if available)
+async function getJobs() {
+    if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+        try {
+            return await window.firebaseService.getJobs();
+        } catch (error) {
+            console.error('Error fetching jobs from Firebase:', error);
+            // Fallback to localStorage
+            const jobs = localStorage.getItem(JOBS_STORAGE_KEY);
+            return jobs ? JSON.parse(jobs) : [];
+        }
+    }
+    // Fallback to localStorage
     const jobs = localStorage.getItem(JOBS_STORAGE_KEY);
     return jobs ? JSON.parse(jobs) : [];
 }
@@ -121,13 +146,14 @@ function handleLogin(e) {
     }
 }
 
-// Show dashboard
-function showDashboard() {
+// Show dashboard (async)
+async function showDashboard() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('admin-dashboard').style.display = 'block';
-    renderJobsList();
-    renderApplications();
-    loadSettings();
+    await initializeAdminJobs();
+    await renderJobsList();
+    await renderApplications();
+    await loadSettings();
 }
 
 // Handle logout
@@ -160,10 +186,10 @@ function setupAdminNavigation() {
     });
 }
 
-// Jobs List Management
-function renderJobsList(filter = 'all') {
+// Jobs List Management (async)
+async function renderJobsList(filter = 'all') {
     const container = document.getElementById('jobs-list-container');
-    const jobs = getJobs();
+    const jobs = await getJobs();
     
     let filteredJobs = jobs;
     if (filter === 'active') {
@@ -211,24 +237,24 @@ function setupJobFilters() {
     const filterBtns = document.querySelectorAll('.filter-btn');
     
     filterBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', async function() {
             filterBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             const filter = this.getAttribute('data-filter');
-            renderJobsList(filter);
+            await renderJobsList(filter);
         });
     });
 }
 
-// Add/Edit Job Modal
-function openJobModal(jobId = null) {
+// Add/Edit Job Modal (async)
+async function openJobModal(jobId = null) {
     const modal = document.getElementById('job-modal-admin');
     const form = document.getElementById('job-form');
     const modalTitle = document.getElementById('modal-title');
     
     if (jobId) {
-        const jobs = getJobs();
-        const job = jobs.find(j => j.id === jobId);
+        const jobs = await getJobs();
+        const job = jobs.find(j => j.id === jobId || j.id === parseInt(jobId));
         if (job) {
             modalTitle.textContent = 'Edit Job';
             document.getElementById('job-id').value = job.id;
@@ -329,13 +355,12 @@ function removeJobImage() {
     document.getElementById('job-image-file-name').style.display = 'none';
 }
 
-// Handle job form submission
-function handleJobFormSubmit(e) {
+// Handle job form submission (async)
+async function handleJobFormSubmit(e) {
     e.preventDefault();
     
     const form = e.target;
     const jobId = document.getElementById('job-id').value;
-    const jobs = getJobs();
     
     const jobData = {
         id: jobId ? parseInt(jobId) : Date.now(),
@@ -350,75 +375,130 @@ function handleJobFormSubmit(e) {
         additionalInfo: document.getElementById('job-additional-info').value.trim()
     };
     
-    if (jobId) {
-        // Update existing job
-        const index = jobs.findIndex(j => j.id === parseInt(jobId));
-        if (index !== -1) {
-            jobs[index] = { ...jobs[index], ...jobData };
+    // Save to Firebase or localStorage
+    if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+        try {
+            await window.firebaseService.saveJob(jobData);
+        } catch (error) {
+            console.error('Error saving job to Firebase:', error);
+            // Fallback to localStorage
+            const jobs = await getJobs();
+            if (jobId) {
+                const index = jobs.findIndex(j => j.id === parseInt(jobId));
+                if (index !== -1) {
+                    jobs[index] = { ...jobs[index], ...jobData };
+                }
+            } else {
+                jobs.push(jobData);
+            }
+            localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(jobs));
         }
     } else {
-        // Add new job
-        jobs.push(jobData);
+        // Fallback to localStorage
+        const jobs = await getJobs();
+        if (jobId) {
+            const index = jobs.findIndex(j => j.id === parseInt(jobId));
+            if (index !== -1) {
+                jobs[index] = { ...jobs[index], ...jobData };
+            }
+        } else {
+            jobs.push(jobData);
+        }
+        localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(jobs));
     }
-    
-    localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(jobs));
     
     // Update main site jobs
     if (typeof renderJobs === 'function') {
-        renderJobs();
+        await renderJobs();
     }
     
     closeJobModal();
-    renderJobsList();
+    await renderJobsList();
     
     // Show success message
     showNotification('Job saved successfully!', 'success');
 }
 
-// Edit job
-function editJob(jobId) {
-    openJobModal(jobId);
+// Edit job (async)
+async function editJob(jobId) {
+    await openJobModal(jobId);
 }
 
-// Delete job
-function deleteJob(jobId) {
+// Delete job (async)
+async function deleteJob(jobId) {
     if (!confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
         return;
     }
     
-    const jobs = getJobs();
-    const filteredJobs = jobs.filter(j => j.id !== jobId);
-    localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(filteredJobs));
+    // Delete from Firebase or localStorage
+    if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+        try {
+            await window.firebaseService.deleteJob(jobId);
+        } catch (error) {
+            console.error('Error deleting job from Firebase:', error);
+            // Fallback to localStorage
+            const jobs = await getJobs();
+            const filteredJobs = jobs.filter(j => j.id !== jobId);
+            localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(filteredJobs));
+        }
+    } else {
+        const jobs = await getJobs();
+        const filteredJobs = jobs.filter(j => j.id !== jobId);
+        localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(filteredJobs));
+    }
     
-    renderJobsList();
+    await renderJobsList();
     
     // Update main site
     if (typeof renderJobs === 'function') {
-        renderJobs();
+        await renderJobs();
     }
 }
 
-// Toggle archive status
-function toggleArchiveJob(jobId) {
-    const jobs = getJobs();
-    const job = jobs.find(j => j.id === jobId);
+// Toggle archive status (async)
+async function toggleArchiveJob(jobId) {
+    const jobs = await getJobs();
+    const job = jobs.find(j => j.id === jobId || j.id === parseInt(jobId));
     
     if (job) {
         job.status = job.status === 'active' ? 'archived' : 'active';
-        localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(jobs));
-        renderJobsList();
+        
+        // Save to Firebase or localStorage
+        if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+            try {
+                await window.firebaseService.saveJob(job);
+            } catch (error) {
+                console.error('Error updating job in Firebase:', error);
+                localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(jobs));
+            }
+        } else {
+            localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(jobs));
+        }
+        
+        await renderJobsList();
         
         // Update main site
         if (typeof renderJobs === 'function') {
-            renderJobs();
+            await renderJobs();
         }
     }
 }
 
-// Applications Management
-function renderApplications() {
+// Applications Management (async)
+async function renderApplications() {
     const container = document.getElementById('applications-container');
-    const applications = JSON.parse(localStorage.getItem('applications') || '[]');
+    let applications = [];
+    
+    if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+        try {
+            applications = await window.firebaseService.getApplications();
+        } catch (error) {
+            console.error('Error fetching applications from Firebase:', error);
+            applications = JSON.parse(localStorage.getItem('applications') || '[]');
+        }
+    } else {
+        applications = JSON.parse(localStorage.getItem('applications') || '[]');
+    }
     
     if (applications.length === 0) {
         container.innerHTML = `
@@ -642,9 +722,20 @@ function exportApplicationsToCSV() {
     document.body.removeChild(link);
 }
 
-// Settings Management
-function loadSettings() {
-    const settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+// Settings Management (async)
+async function loadSettings() {
+    let settings = {};
+    
+    if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+        try {
+            settings = await window.firebaseService.getSettings();
+        } catch (error) {
+            console.error('Error fetching settings from Firebase:', error);
+            settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+        }
+    } else {
+        settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+    }
     
     if (settings.hrEmail) {
         document.getElementById('hr-email').value = settings.hrEmail;
@@ -654,15 +745,27 @@ function loadSettings() {
     }
 }
 
-function saveEmailSettings() {
+async function saveEmailSettings() {
     const hrEmail = document.getElementById('hr-email').value;
     const hrEmails = document.getElementById('hr-emails').value;
     
-    const settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
-    settings.hrEmail = hrEmail;
-    settings.hrEmails = hrEmails;
+    const settings = {
+        hrEmail: hrEmail,
+        hrEmails: hrEmails
+    };
     
-    localStorage.setItem('admin_settings', JSON.stringify(settings));
+    // Save to Firebase or localStorage
+    if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+        try {
+            await window.firebaseService.saveSettings(settings);
+        } catch (error) {
+            console.error('Error saving settings to Firebase:', error);
+            localStorage.setItem('admin_settings', JSON.stringify(settings));
+        }
+    } else {
+        localStorage.setItem('admin_settings', JSON.stringify(settings));
+    }
+    
     showNotification('Email settings saved successfully!', 'success');
 }
 
@@ -743,6 +846,137 @@ function showNotification(message, type = 'info', title = '') {
     }, 5000);
 }
 
+// Page Content Management (async)
+async function loadPageContent(pageName) {
+    if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+        try {
+            return await window.firebaseService.getPageContent(pageName);
+        } catch (error) {
+            console.error('Error fetching page content from Firebase:', error);
+            const content = JSON.parse(localStorage.getItem(`page_content_${pageName}`) || '{}');
+            return content;
+        }
+    }
+    const content = JSON.parse(localStorage.getItem(`page_content_${pageName}`) || '{}');
+    return content;
+}
+
+async function savePageContent(pageName) {
+    let content = {};
+    
+    if (pageName === 'home') {
+        content = {
+            heroTitle: document.getElementById('home-hero-title').value,
+            heroSubtitle: document.getElementById('home-hero-subtitle').value,
+            whoWeAre: document.getElementById('home-who-we-are').value,
+            ourPurpose: document.getElementById('home-our-purpose').value,
+            quoteLabel: document.getElementById('home-quote-label').value,
+            quoteText: document.getElementById('home-quote-text').value,
+            quoteAuthor: document.getElementById('home-quote-author').value
+        };
+    } else if (pageName === 'about') {
+        content = {
+            sectionLabel: document.getElementById('about-section-label').value,
+            sectionTitle: document.getElementById('about-section-title').value,
+            sectionSubtitle: document.getElementById('about-section-subtitle').value,
+            name: document.getElementById('about-name').value,
+            jobTitle: document.getElementById('about-job-title').value,
+            experience: document.getElementById('about-experience').value,
+            description1: document.getElementById('about-description-1').value,
+            description2: document.getElementById('about-description-2').value,
+            description3: document.getElementById('about-description-3').value,
+            profileImage: document.getElementById('about-profile-image').value
+        };
+    } else if (pageName === 'apply') {
+        content = {
+            label: document.getElementById('apply-section-label').value,
+            title: document.getElementById('apply-section-title').value,
+            subtitle: document.getElementById('apply-section-subtitle').value,
+            formUrl: document.getElementById('apply-form-url').value
+        };
+        
+        // Also save form URL globally for Apply Now buttons
+        if (content.formUrl) {
+            localStorage.setItem('apply_form_url', content.formUrl);
+        }
+    }
+    
+    // Save to Firebase or localStorage
+    if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+        try {
+            await window.firebaseService.savePageContent(pageName, content);
+        } catch (error) {
+            console.error('Error saving page content to Firebase:', error);
+            localStorage.setItem(`page_content_${pageName}`, JSON.stringify(content));
+        }
+    } else {
+        localStorage.setItem(`page_content_${pageName}`, JSON.stringify(content));
+    }
+    
+    showNotification(`${pageName.charAt(0).toUpperCase() + pageName.slice(1)} page content saved successfully!`, 'success', 'Content Saved');
+}
+
+async function loadPageContentIntoEditor(pageName) {
+    const content = await loadPageContent(pageName);
+    
+    if (pageName === 'home') {
+        if (content.heroTitle) document.getElementById('home-hero-title').value = content.heroTitle;
+        if (content.heroSubtitle) document.getElementById('home-hero-subtitle').value = content.heroSubtitle;
+        if (content.whoWeAre) document.getElementById('home-who-we-are').value = content.whoWeAre;
+        if (content.ourPurpose) document.getElementById('home-our-purpose').value = content.ourPurpose;
+        if (content.quoteLabel) document.getElementById('home-quote-label').value = content.quoteLabel;
+        if (content.quoteText) document.getElementById('home-quote-text').value = content.quoteText;
+        if (content.quoteAuthor) document.getElementById('home-quote-author').value = content.quoteAuthor;
+    } else if (pageName === 'about') {
+        if (content.sectionLabel) document.getElementById('about-section-label').value = content.sectionLabel;
+        if (content.sectionTitle) document.getElementById('about-section-title').value = content.sectionTitle;
+        if (content.sectionSubtitle) document.getElementById('about-section-subtitle').value = content.sectionSubtitle;
+        if (content.name) document.getElementById('about-name').value = content.name;
+        if (content.jobTitle) document.getElementById('about-job-title').value = content.jobTitle;
+        if (content.experience) document.getElementById('about-experience').value = content.experience;
+        if (content.description1) document.getElementById('about-description-1').value = content.description1;
+        if (content.description2) document.getElementById('about-description-2').value = content.description2;
+        if (content.description3) document.getElementById('about-description-3').value = content.description3;
+        if (content.profileImage) document.getElementById('about-profile-image').value = content.profileImage;
+    } else if (pageName === 'apply') {
+        if (content.label) document.getElementById('apply-section-label').value = content.label;
+        if (content.title) document.getElementById('apply-section-title').value = content.title;
+        if (content.subtitle) document.getElementById('apply-section-subtitle').value = content.subtitle;
+        if (content.formUrl) document.getElementById('apply-form-url').value = content.formUrl;
+        else {
+            // Set default Google Form URL if not set
+            document.getElementById('apply-form-url').value = 'https://forms.gle/xPnqiE2Cytt9VyuAA';
+        }
+    }
+}
+
+function setupPageTabs() {
+    const pageTabs = document.querySelectorAll('.page-tab-btn');
+    const pageEditors = document.querySelectorAll('.page-editor');
+    
+    pageTabs.forEach(tab => {
+        tab.addEventListener('click', async function() {
+            const pageName = this.getAttribute('data-page');
+            
+            // Remove active class from all tabs and editors
+            pageTabs.forEach(t => t.classList.remove('active'));
+            pageEditors.forEach(e => e.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding editor
+            this.classList.add('active');
+            const editor = document.getElementById(`page-editor-${pageName}`);
+            if (editor) {
+                editor.classList.add('active');
+                // Load content when switching to a page editor
+                await loadPageContentIntoEditor(pageName);
+            }
+        });
+    });
+    
+    // Load home page content initially
+    loadPageContentIntoEditor('home');
+}
+
 // Make functions globally available
 window.editJob = editJob;
 window.deleteJob = deleteJob;
@@ -754,19 +988,37 @@ window.viewResume = viewResume;
 window.downloadResume = downloadResume;
 window.saveEmailSettings = saveEmailSettings;
 window.changeAdminCredentials = changeAdminCredentials;
+window.savePageContent = savePageContent;
 window.showNotification = showNotification;
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     initializeAdminCredentials();
-    initializeAdminJobs(); // Initialize jobs when admin page loads
     
     // Check if already logged in
     if (isLoggedIn()) {
-        showDashboard();
+        await showDashboard();
     } else {
         document.getElementById('login-screen').style.display = 'flex';
         document.getElementById('admin-dashboard').style.display = 'none';
+    }
+    
+    // Migrate localStorage data to Firebase if Firebase is configured (one-time)
+    if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+        const migrationDone = sessionStorage.getItem('firebase_migration_done');
+        if (!migrationDone) {
+            try {
+                    const migrated = await window.firebaseService.migrateFromLocalStorage();
+                if (migrated) {
+                    sessionStorage.setItem('firebase_migration_done', 'true');
+                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                        console.log('Data migrated to Firebase successfully');
+                    }
+                }
+            } catch (error) {
+                console.error('Error migrating data to Firebase:', error);
+            }
+        }
     }
     
     // Login form
@@ -783,6 +1035,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Navigation
     setupAdminNavigation();
+    
+    // Page tabs
+    setupPageTabs();
     
     // Job filters
     setupJobFilters();

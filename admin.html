@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title>Admin Dashboard - Workforce Recruitment Solutions</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="admin-styles.css">
@@ -53,6 +54,7 @@
                 <ul class="admin-menu">
                     <li><a href="#jobs-manager" class="admin-menu-item active" data-section="jobs-manager">Job Manager</a></li>
                     <li><a href="#applications" class="admin-menu-item" data-section="applications">Applications</a></li>
+                    <li><a href="#pages" class="admin-menu-item" data-section="pages">Pages</a></li>
                     <li><a href="#settings" class="admin-menu-item" data-section="settings">Settings</a></li>
                 </ul>
             </div>
@@ -85,6 +87,132 @@
                     </div>
                     <div id="applications-container" class="applications-container">
                         <!-- Applications will be dynamically rendered here -->
+                    </div>
+                </section>
+
+                <!-- Pages Section -->
+                <section id="pages" class="admin-section">
+                    <div class="section-header">
+                        <h2>Page Content Editor</h2>
+                        <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 0.5rem;">Edit content for Home, About, and Apply pages (excluding Jobs page)</p>
+                    </div>
+                    <div class="pages-content">
+                        <div class="pages-tabs">
+                            <button class="page-tab-btn active" data-page="home">Home Page</button>
+                            <button class="page-tab-btn" data-page="about">About Page</button>
+                            <button class="page-tab-btn" data-page="apply">Apply Page</button>
+                        </div>
+
+                        <!-- Home Page Editor -->
+                        <div id="page-editor-home" class="page-editor active">
+                            <div class="setting-card">
+                                <h3>Home Page Content</h3>
+                                <div class="form-group">
+                                    <label for="home-hero-title">Hero Title</label>
+                                    <input type="text" id="home-hero-title" placeholder="Connecting Talent with Opportunity">
+                                </div>
+                                <div class="form-group">
+                                    <label for="home-hero-subtitle">Hero Subtitle</label>
+                                    <textarea id="home-hero-subtitle" rows="2" placeholder="A people-first recruitment partner..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="home-who-we-are">Who We Are</label>
+                                    <textarea id="home-who-we-are" rows="3" placeholder="Workforce Recruitment Solutions is..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="home-our-purpose">Our Purpose</label>
+                                    <textarea id="home-our-purpose" rows="3" placeholder="We exist to bridge talent..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="home-quote-label">Quote Section Label</label>
+                                    <input type="text" id="home-quote-label" placeholder="Our Commitment">
+                                </div>
+                                <div class="form-group">
+                                    <label for="home-quote-text">Quote Text</label>
+                                    <textarea id="home-quote-text" rows="3" placeholder='"We don\'t just fill roles..."'></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="home-quote-author">Quote Author</label>
+                                    <input type="text" id="home-quote-author" placeholder="— Rovic Deniel L. Mejia, HR Officer & Recruitment Specialist">
+                                </div>
+                                <button class="btn-primary" onclick="savePageContent('home')">Save Home Page Content</button>
+                            </div>
+                        </div>
+
+                        <!-- About Page Editor -->
+                        <div id="page-editor-about" class="page-editor">
+                            <div class="setting-card">
+                                <h3>About Page Content</h3>
+                                <div class="form-group">
+                                    <label for="about-section-label">Section Label</label>
+                                    <input type="text" id="about-section-label" placeholder="Our Team">
+                                </div>
+                                <div class="form-group">
+                                    <label for="about-section-title">Section Title</label>
+                                    <input type="text" id="about-section-title" placeholder="Meet Our HR Officer">
+                                </div>
+                                <div class="form-group">
+                                    <label for="about-section-subtitle">Section Subtitle</label>
+                                    <textarea id="about-section-subtitle" rows="2" placeholder="Learn about the person..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="about-name">Name</label>
+                                    <input type="text" id="about-name" placeholder="Rovic Deniel Labuguen Mejia">
+                                </div>
+                                <div class="form-group">
+                                    <label for="about-job-title">Job Title</label>
+                                    <input type="text" id="about-job-title" placeholder="HR Officer & Recruitment Specialist">
+                                </div>
+                                <div class="form-group">
+                                    <label for="about-experience">Experience Badge</label>
+                                    <input type="text" id="about-experience" placeholder="3+ Years Experience">
+                                </div>
+                                <div class="form-group">
+                                    <label for="about-description-1">Description Paragraph 1</label>
+                                    <textarea id="about-description-1" rows="3" placeholder="Rovic Deniel Labuguen Mejia is..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="about-description-2">Description Paragraph 2</label>
+                                    <textarea id="about-description-2" rows="3" placeholder="He has a proven track record..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="about-description-3">Description Paragraph 3</label>
+                                    <textarea id="about-description-3" rows="3" placeholder="With hands-on experience..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="about-profile-image">Profile Image URL (or leave empty to use default)</label>
+                                    <input type="text" id="about-profile-image" placeholder="Solo Business Pic.png">
+                                </div>
+                                <button class="btn-primary" onclick="savePageContent('about')">Save About Page Content</button>
+                            </div>
+                        </div>
+
+                        <!-- Apply Page Editor -->
+                        <div id="page-editor-apply" class="page-editor">
+                            <div class="setting-card">
+                                <h3>Apply Page Content</h3>
+                                <div class="form-group">
+                                    <label for="apply-section-label">Section Label</label>
+                                    <input type="text" id="apply-section-label" placeholder="Get Started">
+                                </div>
+                                <div class="form-group">
+                                    <label for="apply-section-title">Section Title</label>
+                                    <input type="text" id="apply-section-title" placeholder="Apply Now">
+                                </div>
+                                <div class="form-group">
+                                    <label for="apply-section-subtitle">Section Subtitle</label>
+                                    <textarea id="apply-section-subtitle" rows="2" placeholder="Submit your application..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="apply-form-url">Google Form URL</label>
+                                    <input type="url" id="apply-form-url" placeholder="https://forms.gle/xPnqiE2Cytt9VyuAA">
+                                    <small style="color: var(--text-light); font-size: 0.85rem; display: block; margin-top: 0.5rem;">
+                                        This URL will be used for the "Apply Now" buttons on the Jobs page and the CTA button on this page.
+                                    </small>
+                                </div>
+                                <button class="btn-primary" onclick="savePageContent('apply')">Save Apply Page Content</button>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -212,6 +340,16 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Firebase Service -->
+    <script src="firebase-service.js"></script>
+    
     <script src="admin-script.js"></script>
 </body>
 </html>

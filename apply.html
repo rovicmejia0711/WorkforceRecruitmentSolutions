@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Apply for a position at Workforce Recruitment Solutions. Submit your application and take the next step in your career.">
+    <meta name="keywords" content="apply, job application, career application, employment">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Apply Now - Workforce Recruitment Solutions">
+    <meta property="og:description" content="Submit your application and take the next step in your career.">
+    <meta property="og:type" content="website">
+    <link rel="canonical" href="https://your-domain.com/apply.html">
     <title>Apply Now - Workforce Recruitment Solutions</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,59 +40,17 @@
     <!-- Contact/Apply Section -->
     <section id="contact" class="contact-section" style="margin-top: 80px;">
         <div class="container">
-            <div class="section-label">Get Started</div>
-            <h2 class="section-title">Apply Now</h2>
-            <p class="section-subtitle">Submit your application and take the next step in your career. We're here to help you succeed.</p>
+            <div class="section-label" id="apply-page-label">Get Started</div>
+            <h2 class="section-title" id="apply-page-title">Apply Now</h2>
+            <p class="section-subtitle" id="apply-page-subtitle">Submit your application and take the next step in your career. We're here to help you succeed.</p>
             
-            <!-- Embedded Google Form -->
-            <div class="google-form-container">
-                <!-- 
-                    IMPORTANT: GOOGLE FORM EMBED CONFIGURATION
-                    ============================================
-                    The form embed URL below may need to be updated.
-                    
-                    To get the correct embed URL:
-                    1. Open your Google Form: https://forms.gle/xPnqiE2Cytt9VyuAA
-                    2. Click the "Send" button (top right corner)
-                    3. Click the "< >" (embed) icon tab
-                    4. Copy the iframe code provided
-                    5. Extract the src URL from the iframe code
-                    6. Replace the src URL below with your actual form embed URL
-                    
-                    Example format:
-                    https://docs.google.com/forms/d/e/[YOUR_FORM_ID]/viewform?embedded=true
-                -->
-                <iframe 
-                    id="google-form-iframe"
-                    src="https://docs.google.com/forms/d/e/1FAIpQLSdXxPnqiE2Cytt9VyuAA/viewform?embedded=true" 
-                    width="100%" 
-                    height="1200" 
-                    frameborder="0" 
-                    marginheight="0" 
-                    marginwidth="0"
-                    title="Application Form - Workforce Recruitment Solutions"
-                    style="border: none; min-height: 1200px;"
-                    loading="lazy"
-                    allow="fullscreen">
-                    <p>Your browser does not support iframes. 
-                        <a href="https://forms.gle/xPnqiE2Cytt9VyuAA" target="_blank" rel="noopener noreferrer">
-                            Click here to open the application form in a new window
-                        </a>.
-                    </p>
-                </iframe>
-            </div>
-            
-            <!-- Alternative link - shown if form doesn't load -->
-            <div class="form-fallback" id="form-fallback" style="text-align: center; margin-top: 2rem; display: none;">
-                <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
-                    <p style="color: #856404; margin: 0 0 0.5rem 0; font-weight: 600; font-size: 1.1rem;">⚠️ Form Embed Error Detected</p>
-                    <p style="color: #856404; margin: 0; font-size: 0.95rem;">The embedded form could not be loaded. Please click the button below to open the form directly in Google Forms.</p>
-                </div>
-                <a href="https://forms.gle/xPnqiE2Cytt9VyuAA" target="_blank" rel="noopener noreferrer" class="cta-button" style="display: inline-block; margin-bottom: 1rem;">
-                    Open Application Form in New Window
+            <!-- CTA Button to Google Form -->
+            <div style="text-align: center; margin: 3rem 0;">
+                <a href="#" id="apply-cta-button" target="_blank" rel="noopener noreferrer" class="cta-button" style="display: inline-block; font-size: 1.2rem; padding: 1.2rem 3rem;">
+                    Submit Application Form
                 </a>
-                <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 1rem;">
-                    <strong>Note:</strong> If you see this message, the Google Form embed URL in apply.html needs to be updated with the correct form ID.
+                <p style="color: var(--text-light); margin-top: 1.5rem; font-size: 0.95rem;">
+                    Click the button above to open the application form in a new window.
                 </p>
             </div>
         </div>
@@ -115,67 +79,60 @@
         </div>
     </footer>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Firebase Service -->
+    <script src="firebase-service.js"></script>
+    
     <script src="script.js"></script>
     <script>
-        // Detect if Google Form iframe fails to load and show fallback
-        (function() {
-            const iframe = document.getElementById('google-form-iframe');
-            const fallback = document.getElementById('form-fallback');
-            const container = document.querySelector('.google-form-container');
+        // Load page content from Firebase or localStorage
+        document.addEventListener('DOMContentLoaded', async function() {
+            let pageContent = {};
             
-            if (!iframe || !fallback) return;
-            
-            // Function to show fallback
-            function showFallback() {
-                if (container) container.style.display = 'none';
-                fallback.style.display = 'block';
+            // Try Firebase first
+            if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+                try {
+                    pageContent = await window.firebaseService.getPageContent('apply');
+                } catch (error) {
+                    console.error('Error loading page content from Firebase:', error);
+                    pageContent = JSON.parse(localStorage.getItem('page_content_apply') || '{}');
+                }
+            } else {
+                pageContent = JSON.parse(localStorage.getItem('page_content_apply') || '{}');
             }
             
-            // Check after page loads
-            window.addEventListener('load', function() {
-                // Wait a bit for iframe to load, then check
-                setTimeout(function() {
-                    // Try to detect if iframe loaded error content
-                    try {
-                        // Cross-origin check - if we can access document, check for errors
-                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                        if (iframeDoc) {
-                            const body = iframeDoc.body;
-                            if (body && (
-                                body.textContent.includes('does not exist') || 
-                                body.textContent.includes('404') ||
-                                body.textContent.includes('Sorry, the file') ||
-                                body.textContent.includes('Google Drive')
-                            )) {
-                                showFallback();
-                                return;
-                            }
-                        }
-                    } catch (e) {
-                        // Cross-origin - normal for Google Forms
-                        // Check if iframe seems to have loaded properly
-                        if (iframe.offsetHeight < 100) {
-                            // Iframe is very small, might be an error
-                            showFallback();
-                        }
-                    }
-                }, 3000);
-            });
+            if (pageContent.label) {
+                const labelEl = document.getElementById('apply-page-label');
+                if (labelEl) labelEl.textContent = pageContent.label;
+            }
             
-            // Listen for iframe errors (may not fire due to CORS, but worth trying)
-            iframe.addEventListener('error', function() {
-                showFallback();
-            });
+            if (pageContent.title) {
+                const titleEl = document.getElementById('apply-page-title');
+                if (titleEl) titleEl.textContent = pageContent.title;
+            }
             
-            // Also show fallback by default after 5 seconds if form seems broken
-            // This ensures users always have access to the form
-            setTimeout(function() {
-                // If iframe height is still very small after 5 seconds, show fallback
-                if (iframe.offsetHeight < 200) {
-                    showFallback();
-                }
-            }, 5000);
-        })();
+            if (pageContent.subtitle) {
+                const subtitleEl = document.getElementById('apply-page-subtitle');
+                if (subtitleEl) subtitleEl.textContent = pageContent.subtitle;
+            }
+            
+            // Set CTA button URL
+            const formUrl = pageContent.formUrl || localStorage.getItem('apply_form_url') || 'https://forms.gle/xPnqiE2Cytt9VyuAA';
+            const ctaButton = document.getElementById('apply-cta-button');
+            if (ctaButton) {
+                ctaButton.href = formUrl;
+            } else {
+                // Fallback to class selector
+                const fallbackButton = document.querySelector('.cta-button');
+                if (fallbackButton) fallbackButton.href = formUrl;
+            }
+        });
     </script>
 </body>
 </html>

@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Meet our HR Officer at Workforce Recruitment Solutions. Learn about our team and commitment to your career success.">
+    <meta name="keywords" content="HR officer, recruitment specialist, about us, team">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="About Us - Workforce Recruitment Solutions">
+    <meta property="og:description" content="Learn about our team and commitment to your career success.">
+    <meta property="og:type" content="website">
+    <link rel="canonical" href="https://your-domain.com/about.html">
     <title>About Us - Workforce Recruitment Solutions</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,28 +40,28 @@
     <!-- About Section -->
     <section id="about" class="about-section" style="margin-top: 80px;">
         <div class="container">
-            <div class="section-label">Our Team</div>
-            <h2 class="section-title">Meet Our HR Officer</h2>
-            <p class="section-subtitle">Learn about the person behind your recruitment journey</p>
+            <div class="section-label" id="about-section-label">Our Team</div>
+            <h2 class="section-title" id="about-section-title">Meet Our HR Officer</h2>
+            <p class="section-subtitle" id="about-section-subtitle">Learn about the person behind your recruitment journey</p>
             <div class="about-content">
                 <div class="about-image">
                     <div class="image-container">
-                        <img src="Solo Business Pic.png" alt="Rovic Deniel Labuguen Mejia - HR Officer & Recruitment Specialist" class="profile-image">
+                        <img src="Solo Business Pic.png" alt="Rovic Deniel Labuguen Mejia - HR Officer & Recruitment Specialist" class="profile-image" id="about-profile-image">
                     </div>
                 </div>
                 <div class="about-text">
                     <div class="about-header">
-                        <h3>Rovic Deniel Labuguen Mejia</h3>
-                        <p class="job-title">HR Officer & Recruitment Specialist</p>
+                        <h3 id="about-name">Rovic Deniel Labuguen Mejia</h3>
+                        <p class="job-title" id="about-job-title">HR Officer & Recruitment Specialist</p>
                         <div class="experience-badge">
                             <span class="badge-icon">⭐</span>
-                            <span>3+ Years Experience</span>
+                            <span id="about-experience">3+ Years Experience</span>
                         </div>
                     </div>
                     <div class="about-description">
-                        <p>Rovic Deniel Labuguen Mejia is a dynamic HR and creative professional with over 3+ years of combined experience in talent acquisition, employee engagement, compensation & benefits, and HR operations.</p>
-                        <p>He has a proven track record of reducing hiring cycle time by 25%, strengthening employee engagement initiatives, and supporting business operations through data analysis, IT support, and process improvement.</p>
-                        <p>With hands-on experience in HR recruitment, payroll processing, HRIS (GreatDay), Monday.com and labor law awareness—combined with strong creative and technical skills—he bridges people management with innovative, results-driven solutions.</p>
+                        <p id="about-description-1">Rovic Deniel Labuguen Mejia is a dynamic HR and creative professional with over 3+ years of combined experience in talent acquisition, employee engagement, compensation & benefits, and HR operations.</p>
+                        <p id="about-description-2">He has a proven track record of reducing hiring cycle time by 25%, strengthening employee engagement initiatives, and supporting business operations through data analysis, IT support, and process improvement.</p>
+                        <p id="about-description-3">With hands-on experience in HR recruitment, payroll processing, HRIS (GreatDay), Monday.com and labor law awareness—combined with strong creative and technical skills—he bridges people management with innovative, results-driven solutions.</p>
                     </div>
                 </div>
             </div>
@@ -85,6 +91,75 @@
         </div>
     </footer>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Firebase Service -->
+    <script src="firebase-service.js"></script>
+    
     <script src="script.js"></script>
+    <script>
+        // Load page content from Firebase or localStorage
+        document.addEventListener('DOMContentLoaded', async function() {
+            let pageContent = {};
+            
+            // Try Firebase first
+            if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+                try {
+                    pageContent = await window.firebaseService.getPageContent('about');
+                } catch (error) {
+                    console.error('Error loading page content from Firebase:', error);
+                    pageContent = JSON.parse(localStorage.getItem('page_content_about') || '{}');
+                }
+            } else {
+                pageContent = JSON.parse(localStorage.getItem('page_content_about') || '{}');
+            }
+            
+            if (pageContent.sectionLabel) {
+                const el = document.getElementById('about-section-label');
+                if (el) el.textContent = pageContent.sectionLabel;
+            }
+            if (pageContent.sectionTitle) {
+                const el = document.getElementById('about-section-title');
+                if (el) el.textContent = pageContent.sectionTitle;
+            }
+            if (pageContent.sectionSubtitle) {
+                const el = document.getElementById('about-section-subtitle');
+                if (el) el.textContent = pageContent.sectionSubtitle;
+            }
+            if (pageContent.name) {
+                const el = document.getElementById('about-name');
+                if (el) el.textContent = pageContent.name;
+            }
+            if (pageContent.jobTitle) {
+                const el = document.getElementById('about-job-title');
+                if (el) el.textContent = pageContent.jobTitle;
+            }
+            if (pageContent.experience) {
+                const el = document.getElementById('about-experience');
+                if (el) el.textContent = pageContent.experience;
+            }
+            if (pageContent.description1) {
+                const el = document.getElementById('about-description-1');
+                if (el) el.textContent = pageContent.description1;
+            }
+            if (pageContent.description2) {
+                const el = document.getElementById('about-description-2');
+                if (el) el.textContent = pageContent.description2;
+            }
+            if (pageContent.description3) {
+                const el = document.getElementById('about-description-3');
+                if (el) el.textContent = pageContent.description3;
+            }
+            if (pageContent.profileImage) {
+                const el = document.getElementById('about-profile-image');
+                if (el) el.src = pageContent.profileImage;
+            }
+        });
+    </script>
 </body>
 </html>

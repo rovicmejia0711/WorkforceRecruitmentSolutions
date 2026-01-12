@@ -77,3 +77,19 @@
 # Site information
 [context.production.environment]
   SITE_URL = "https://your-site.netlify.app"
+
+# Build settings
+[build]
+  publish = "."
+  command = ""
+
+# Headers for all pages
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"

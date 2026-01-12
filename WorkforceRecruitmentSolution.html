@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Workforce Recruitment Solutions - Connecting skilled professionals with organizations that value growth, integrity, and long-term success.">
+    <meta name="keywords" content="recruitment, hiring, job opportunities, career, employment, HR, talent acquisition">
+    <meta name="author" content="Workforce Recruitment Solutions">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Workforce Recruitment Solutions - Home">
+    <meta property="og:description" content="Connecting skilled professionals with organizations that value growth, integrity, and long-term success.">
+    <meta property="og:type" content="website">
+    <link rel="canonical" href="https://your-domain.com/WorkforceRecruitmentSolution.html">
     <title>Home - Workforce Recruitment Solutions</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,18 +42,18 @@
     <section id="home" class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1 class="hero-title">Connecting Talent with Opportunity</h1>
-                <p class="hero-subtitle">A people-first recruitment partner dedicated to building meaningful careers and strengthening workforces</p>
-                <div class="hero-info">
-                    <div class="info-card">
-                        <h3>Who We Are</h3>
-                        <p>Workforce Recruitment Solutions is a people-first recruitment partner dedicated to connecting skilled professionals with organizations that value growth, integrity, and long-term success.</p>
+                    <h1 class="hero-title" id="home-hero-title">Connecting Talent with Opportunity</h1>
+                    <p class="hero-subtitle" id="home-hero-subtitle">A people-first recruitment partner dedicated to building meaningful careers and strengthening workforces</p>
+                    <div class="hero-info">
+                        <div class="info-card">
+                            <h3>Who We Are</h3>
+                            <p id="home-who-we-are">Workforce Recruitment Solutions is a people-first recruitment partner dedicated to connecting skilled professionals with organizations that value growth, integrity, and long-term success.</p>
+                        </div>
+                        <div class="info-card">
+                            <h3>Our Purpose</h3>
+                            <p id="home-our-purpose">We exist to bridge talent and opportunity—helping individuals build meaningful careers while enabling companies to strengthen their workforce through ethical, strategic, and results-driven hiring.</p>
+                        </div>
                     </div>
-                    <div class="info-card">
-                        <h3>Our Purpose</h3>
-                        <p>We exist to bridge talent and opportunity—helping individuals build meaningful careers while enabling companies to strengthen their workforce through ethical, strategic, and results-driven hiring.</p>
-                    </div>
-                </div>
                 <a href="jobs.html" class="cta-button">View Open Positions</a>
             </div>
         </div>
@@ -62,11 +69,11 @@
     <!-- Quote Section -->
     <section class="quote-section">
         <div class="container">
-            <div class="section-label">Our Commitment</div>
+            <div class="section-label" id="home-quote-label">Our Commitment</div>
             <blockquote class="quote">
                 <div class="quote-icon">💬</div>
-                <p>"We don't just fill roles—we build careers. Our commitment is to place people where they can grow, thrive, and make meaningful impact."</p>
-                <cite>— Rovic Deniel L. Mejia, HR Officer & Recruitment Specialist</cite>
+                <p id="home-quote-text">"We don't just fill roles—we build careers. Our commitment is to place people where they can grow, thrive, and make meaningful impact."</p>
+                <cite id="home-quote-author">— Rovic Deniel L. Mejia, HR Officer & Recruitment Specialist</cite>
             </blockquote>
         </div>
     </section>
@@ -94,6 +101,63 @@
         </div>
     </footer>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Firebase Service -->
+    <script src="firebase-service.js"></script>
+    
     <script src="script.js"></script>
+    <script>
+        // Load page content from Firebase or localStorage
+        document.addEventListener('DOMContentLoaded', async function() {
+            let pageContent = {};
+            
+            // Try Firebase first
+            if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+                try {
+                    pageContent = await window.firebaseService.getPageContent('home');
+                } catch (error) {
+                    console.error('Error loading page content from Firebase:', error);
+                    pageContent = JSON.parse(localStorage.getItem('page_content_home') || '{}');
+                }
+            } else {
+                pageContent = JSON.parse(localStorage.getItem('page_content_home') || '{}');
+            }
+            
+            if (pageContent.heroTitle) {
+                const el = document.getElementById('home-hero-title');
+                if (el) el.textContent = pageContent.heroTitle;
+            }
+            if (pageContent.heroSubtitle) {
+                const el = document.getElementById('home-hero-subtitle');
+                if (el) el.textContent = pageContent.heroSubtitle;
+            }
+            if (pageContent.whoWeAre) {
+                const el = document.getElementById('home-who-we-are');
+                if (el) el.textContent = pageContent.whoWeAre;
+            }
+            if (pageContent.ourPurpose) {
+                const el = document.getElementById('home-our-purpose');
+                if (el) el.textContent = pageContent.ourPurpose;
+            }
+            if (pageContent.quoteLabel) {
+                const el = document.getElementById('home-quote-label');
+                if (el) el.textContent = pageContent.quoteLabel;
+            }
+            if (pageContent.quoteText) {
+                const el = document.getElementById('home-quote-text');
+                if (el) el.textContent = pageContent.quoteText;
+            }
+            if (pageContent.quoteAuthor) {
+                const el = document.getElementById('home-quote-author');
+                if (el) el.textContent = pageContent.quoteAuthor;
+            }
+        });
+    </script>
 </body>
 </html>

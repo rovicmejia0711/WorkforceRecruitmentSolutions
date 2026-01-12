@@ -1,4 +1,4 @@
-// Job Data Storage (using localStorage as fallback)
+// Job Data Storage (using Firebase with localStorage fallback)
 const JOBS_STORAGE_KEY = 'workforce_recruitment_jobs';
 
 // Default job postings
@@ -70,37 +70,78 @@ const defaultJobs = [
     }
 ];
 
+// Jobs cache
+let jobsCache = [];
+let jobsLoading = false;
+
 // Initialize jobs if not exists
-function initializeJobs() {
-    if (!localStorage.getItem(JOBS_STORAGE_KEY)) {
-        localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(defaultJobs));
+async function initializeJobs() {
+    if (typeof window.firebaseService !== 'undefined') {
+        try {
+            await window.firebaseService.initializeJobs(defaultJobs);
+        } catch (error) {
+            console.error('Error initializing jobs:', error);
+            // Fallback to localStorage
+            if (!localStorage.getItem(JOBS_STORAGE_KEY)) {
+                localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(defaultJobs));
+            }
+        }
+    } else {
+        // Firebase not loaded, use localStorage
+        if (!localStorage.getItem(JOBS_STORAGE_KEY)) {
+            localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(defaultJobs));
+        }
     }
 }
 
-// Get all jobs
-function getJobs() {
+// Get all jobs (async, uses Firebase if available)
+async function getJobs() {
+    if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+        try {
+            jobsCache = await window.firebaseService.getJobs();
+            return jobsCache;
+        } catch (error) {
+            console.error('Error fetching jobs from Firebase:', error);
+            // Fallback to localStorage
+            const jobs = localStorage.getItem(JOBS_STORAGE_KEY);
+            return jobs ? JSON.parse(jobs) : [];
+        }
+    }
+    // Fallback to localStorage
     const jobs = localStorage.getItem(JOBS_STORAGE_KEY);
     return jobs ? JSON.parse(jobs) : [];
 }
 
-// Get active jobs only
-function getActiveJobs() {
-    return getJobs().filter(job => job.status === 'active');
+// Get active jobs only (async)
+async function getActiveJobs() {
+    const jobs = await getJobs();
+    return jobs.filter(job => job.status === 'active');
 }
 
-// Render jobs
-function renderJobs() {
+// Render jobs (async)
+async function renderJobs() {
     const jobsContainer = document.getElementById('jobs-container');
     if (!jobsContainer) return; // Exit if jobs container doesn't exist on this page
     
-    const activeJobs = getActiveJobs();
+    const loadingEl = document.getElementById('jobs-loading');
+    const errorEl = document.getElementById('jobs-error');
     
-    if (activeJobs.length === 0) {
-        jobsContainer.innerHTML = '<p style="text-align: center; color: var(--text-light); grid-column: 1 / -1;">No job openings at this time. Please check back later.</p>';
-        return;
-    }
+    // Show loading state
+    if (loadingEl) loadingEl.style.display = 'block';
+    if (errorEl) errorEl.style.display = 'none';
     
-    jobsContainer.innerHTML = activeJobs.map(job => `
+    try {
+        const activeJobs = await getActiveJobs();
+        
+        // Hide loading state
+        if (loadingEl) loadingEl.style.display = 'none';
+        
+        if (activeJobs.length === 0) {
+            jobsContainer.innerHTML = '<p style="text-align: center; color: var(--text-light); grid-column: 1 / -1; padding: 2rem;">No job openings at this time. Please check back later.</p>';
+            return;
+        }
+        
+        jobsContainer.innerHTML = activeJobs.map(job => `
         <div class="job-card">
             <div class="job-image-container">
                 ${job.imageUrl ? 
@@ -125,19 +166,29 @@ function renderJobs() {
                 <div class="job-description">${escapeHtml(job.description)}</div>
                 <div class="job-card-actions">
                     <button class="btn-primary" onclick="viewJobDetails(${job.id})">View Details</button>
-                    <a href="apply.html?job=${job.id}" class="btn-secondary" onclick="selectJobForApplication(${job.id})">Apply Now</a>
+                    <a href="${getApplyFormUrl()}" target="_blank" rel="noopener noreferrer" class="btn-secondary">Apply Now</a>
                 </div>
             </div>
         </div>
     `).join('');
+    } catch (error) {
+        // Hide loading, show error
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (errorEl) {
+            errorEl.style.display = 'block';
+        } else {
+            jobsContainer.innerHTML = '<p style="text-align: center; color: var(--primary-red); grid-column: 1 / -1; padding: 2rem;">Unable to load job openings. Please refresh the page or try again later.</p>';
+        }
+        console.error('Error rendering jobs:', error);
+    }
 }
 
-// Populate position dropdown
-function populatePositionDropdown() {
+// Populate position dropdown (async)
+async function populatePositionDropdown() {
     const select = document.getElementById('position-interest');
     if (!select) return; // Exit if position dropdown doesn't exist on this page
     
-    const activeJobs = getActiveJobs();
+    const activeJobs = await getActiveJobs();
     
     select.innerHTML = '<option value="">Select a position...</option>' +
         activeJobs.map(job => 
@@ -145,10 +196,10 @@ function populatePositionDropdown() {
         ).join('');
 }
 
-// View job details modal
-function viewJobDetails(jobId) {
-    const jobs = getJobs();
-    const job = jobs.find(j => j.id === jobId);
+// View job details modal (async)
+async function viewJobDetails(jobId) {
+    const jobs = await getJobs();
+    const job = jobs.find(j => j.id === jobId || j.id === parseInt(jobId));
     
     if (!job) return;
     
@@ -192,7 +243,7 @@ function viewJobDetails(jobId) {
             ${job.additionalInfo ? `<p><strong>Additional Information:</strong> ${escapeHtml(job.additionalInfo)}</p>` : ''}
         </div>
         <div style="margin-top: 2rem; text-align: center;">
-            <a href="apply.html?job=${job.id}" class="btn-primary" onclick="selectJobForApplication(${job.id}); closeModal();" style="display: inline-block; text-decoration: none;">Apply Now</a>
+            <a href="${getApplyFormUrl()}" target="_blank" rel="noopener noreferrer" class="btn-primary" onclick="closeModal();" style="display: inline-block; text-decoration: none;">Apply Now</a>
         </div>
     `;
     
@@ -213,8 +264,8 @@ function selectJobForApplication(jobId) {
     }
 }
 
-// Auto-select job from URL parameter when on apply page
-function autoSelectJobFromURL() {
+// Auto-select job from URL parameter when on apply page (async)
+async function autoSelectJobFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     const jobId = urlParams.get('job');
     if (jobId) {
@@ -287,28 +338,31 @@ function handleFormSubmit(e) {
         return;
     }
     
-    // Get job title
-    const jobs = getJobs();
-    const selectedJob = jobs.find(j => j.id.toString() === applicationData.position);
-    const jobTitle = selectedJob ? selectedJob.title : 'Unknown Position';
-    
     // Disable form
     submitButton.disabled = true;
     buttonText.style.display = 'none';
     buttonLoader.style.display = 'inline-block';
     formMessage.textContent = '';
     
-    // Save to localStorage
-    saveApplication(applicationData, jobTitle, formData.get('resume'))
-        .then(() => {
+    // Get job title and save application (async)
+    getJobs()
+        .then(jobs => {
+            const selectedJob = jobs.find(j => j.id.toString() === applicationData.position);
+            const jobTitle = selectedJob ? selectedJob.title : 'Unknown Position';
+            
+            // Save application
+            return saveApplication(applicationData, jobTitle, formData.get('resume'))
+                .then(() => jobTitle);
+        })
+        .then(jobTitle => {
             // Send email notification
             return sendEmailNotification(applicationData, jobTitle);
         })
-        .then(() => {
+        .then(jobTitle => {
             // Send auto-reply to applicant
             return sendAutoReply(applicationData, jobTitle);
         })
-        .then(() => {
+        .then(jobTitle => {
             // Success - redirect to thank you page
             window.location.href = `thank-you.html?name=${encodeURIComponent(applicationData.name)}&position=${encodeURIComponent(jobTitle)}`;
         })
@@ -332,11 +386,8 @@ function fileToBase64(file) {
     });
 }
 
-// Save application to storage
+// Save application to storage (Firebase or localStorage)
 async function saveApplication(applicationData, jobTitle, resumeFile) {
-    // Save to localStorage (for demo)
-    const applications = JSON.parse(localStorage.getItem('applications') || '[]');
-    
     let resumeData = null;
     let resumeFileName = 'No file';
     let resumeFileType = null;
@@ -351,13 +402,28 @@ async function saveApplication(applicationData, jobTitle, resumeFile) {
         }
     }
     
-    applications.push({
+    const applicationToSave = {
         ...applicationData,
         jobTitle: jobTitle,
         resumeFileName: resumeFileName,
         resumeFileType: resumeFileType,
         resumeData: resumeData
-    });
+    };
+    
+    // Try Firebase first, fallback to localStorage
+    if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+        try {
+            await window.firebaseService.saveApplication(applicationToSave);
+            return Promise.resolve();
+        } catch (error) {
+            console.error('Error saving application to Firebase:', error);
+            // Fallback to localStorage
+        }
+    }
+    
+    // Fallback to localStorage
+    const applications = JSON.parse(localStorage.getItem('applications') || '[]');
+    applications.push(applicationToSave);
     localStorage.setItem('applications', JSON.stringify(applications));
     
     return Promise.resolve();
@@ -427,7 +493,7 @@ async function sendAutoReply(applicationData, jobTitle) {
     //     body: `Dear ${applicationData.name},\n\nThank you for your interest in the ${jobTitle} position...`
     // }
     
-    return Promise.resolve();
+    return Promise.resolve(jobTitle);
 }
 
 // Escape HTML to prevent XSS
@@ -495,20 +561,33 @@ function setupSmoothScroll() {
 }
 
 // Initialize everything when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    initializeJobs();
-    renderJobs();
-    populatePositionDropdown();
+document.addEventListener('DOMContentLoaded', async function() {
+    await initializeJobs();
+    await renderJobs();
+    await populatePositionDropdown();
     setupFileUpload();
     setupMobileNav();
     setupModalClose();
     setupSmoothScroll();
-    autoSelectJobFromURL();
+    await autoSelectJobFromURL();
     
     // Form submission
     const applicationForm = document.getElementById('application-form');
     if (applicationForm) {
         applicationForm.addEventListener('submit', handleFormSubmit);
+    }
+    
+    // Set up real-time listener for jobs if Firebase is available
+    if (typeof window.firebaseService !== 'undefined' && window.firebaseService.isFirebaseAvailable) {
+        try {
+            window.firebaseService.subscribeToJobs((jobs) => {
+                jobsCache = jobs;
+                renderJobs();
+                populatePositionDropdown();
+            });
+        } catch (error) {
+            console.error('Error setting up jobs listener:', error);
+        }
     }
 });
 
@@ -516,3 +595,4 @@ document.addEventListener('DOMContentLoaded', function() {
 window.viewJobDetails = viewJobDetails;
 window.selectJobForApplication = selectJobForApplication;
 window.closeModal = closeModal;
+window.getApplyFormUrl = getApplyFormUrl;

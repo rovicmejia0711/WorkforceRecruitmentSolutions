@@ -427,6 +427,52 @@
     margin-top: 0.5rem;
 }
 
+/* Page Content Editor */
+.pages-content {
+    margin-top: 2rem;
+}
+
+.pages-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--gray-medium);
+}
+
+.page-tab-btn {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-light);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.page-tab-btn:hover {
+    color: var(--primary-red);
+}
+
+.page-tab-btn.active {
+    color: var(--primary-red);
+    border-bottom-color: var(--primary-red);
+    font-weight: 600;
+}
+
+.page-editor {
+    display: none;
+}
+
+.page-editor.active {
+    display: block;
+}
+
+.page-editor .setting-card {
+    max-width: 800px;
+}
+
 /* Job Form Modal */
 .modal-content.large {
     max-width: 900px;
