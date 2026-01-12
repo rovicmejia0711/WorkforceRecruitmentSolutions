@@ -1,14 +1,15 @@
 // Firebase Configuration
-// Replace these values with your Firebase project configuration
-// Get these from: https://console.firebase.google.com/ > Project Settings > General > Your apps
+// Workforce Recruitment Solutions - Production Configuration
 
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyBifCeDvZHUdvLVyJXdnFMwfAGmESU2Uw8",
+    authDomain: "hr-workforcerecruitment.firebaseapp.com",
+    databaseURL: "https://hr-workforcerecruitment-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "hr-workforcerecruitment",
+    storageBucket: "hr-workforcerecruitment.firebasestorage.app",
+    messagingSenderId: "57361641284",
+    appId: "1:57361641284:web:da8f42f5182eb3f174b111",
+    measurementId: "G-1JNMTPE7H5"
 };
 
 // Check if Firebase is configured
