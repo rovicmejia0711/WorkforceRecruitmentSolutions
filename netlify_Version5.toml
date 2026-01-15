@@ -1,0 +1,71 @@
+# Netlify Configuration File
+# Workforce Recruitment Solutions - Deployment Settings
+
+[build]
+  # Publish site root
+  publish = "."
+
+# Redirect rules
+# Redirect root to home page
+[[redirects]]
+  from = "/"
+  to = "/WorkforceRecruitmentSolution.html"
+  status = 200
+  force = false
+
+# Redirect old index.html to new home page (backwards compatibility)
+[[redirects]]
+  from = "/index.html"
+  to = "/WorkforceRecruitmentSolution.html"
+  status = 301
+  force = false
+
+# Headers for security and performance (merged)
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, must-revalidate"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpeg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Site information
+[context.production.environment]
+  SITE_URL = "https://workforcerecruitment.netlify.app"
